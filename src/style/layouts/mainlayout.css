@@ -1,0 +1,41 @@
+.top-bar {
+    height: 6vh;
+}
+
+.main-dashboard {
+    background-color: lightgrey;
+}
+
+.main-dashboard-nav {
+    direction: rtl;
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+
+    padding: 1.25vw;
+
+    &>h1 {
+        padding-bottom: 2vh;
+    }
+
+    &>div {
+
+        & * {
+            font-size: 125%;
+            margin-top: 0.5vh;
+            margin-bottom: 0.5vh;
+            padding: 1vh;
+            border-radius: 10px;
+
+            display: block;
+            color: black;
+            text-decoration: none;
+
+            transition: background-color 0.1s linear;
+        }
+
+        & :hover {
+            background-color: rgb(184, 184, 184);
+        }
+    }
+}

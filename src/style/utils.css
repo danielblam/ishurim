@@ -1,0 +1,15 @@
+.rtl {
+    direction: rtl;
+}
+
+.rtl-table th,
+.rtl-table td {
+    text-align: right;
+}
+
+.rtl-table {
+    display:flex;
+    justify-content: flex-end;
+    margin-left:auto;
+    direction:rtl;
+}
