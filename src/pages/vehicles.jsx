@@ -10,6 +10,7 @@ export function VehiclesPage() {
 
     var objectProps = {
         id:"vehicleId",
+        nameHebrew:"כלי תחבורה",
         columns:[
             ["name","שם"]
         ]
@@ -34,6 +35,9 @@ export function VehiclesPage() {
     const data = { nodes: objectData }
 
     return (
-        <ObjectTable data={data} objectProps={objectProps}/>
+        <>
+            <ObjectTable data={data} objectType={objectType} objectProps={objectProps} 
+            setObjectData={setObjectData}/>
+        </>
     )
 }

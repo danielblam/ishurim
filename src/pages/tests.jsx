@@ -10,6 +10,7 @@ export function TestsPage() {
 
     var objectProps = {
         id:"testId",
+        nameHebrew:"סוג בדיקה",
         columns:[
             ["name","שם"]
         ]
@@ -34,6 +35,9 @@ export function TestsPage() {
     const data = { nodes: objectData }
 
     return (
-        <ObjectTable data={data} objectProps={objectProps}/>
+        <>
+            <ObjectTable data={data} objectType={objectType} objectProps={objectProps} 
+            setObjectData={setObjectData}/>
+        </>
     )
 }

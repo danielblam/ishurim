@@ -48,9 +48,20 @@ async function deleteObject(type, token, objectId) {
     return response.status
 }
 
+async function generatePdf(token, approvalId) {
+    const request = new Request(`${url}/approvals/pdf/${approvalId}`, {
+        method: "GET",
+        headers: headers(token)
+    })
+    const response = await fetch(request)
+    const blob = await response.blob()
+    return blob
+}
+
 export const objectService = {
     getObjectList,
     addObject,
     editObject,
-    deleteObject
+    deleteObject,
+    generatePdf
 }

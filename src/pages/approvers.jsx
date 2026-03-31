@@ -20,6 +20,7 @@ export function ApproversPage() {
 
     var objectProps = {
         id:"approverId",
+        nameHebrew:"מאשר",
         columns:[
             ["name","שם"],
             ["fullName","שם מלא"]
@@ -46,7 +47,8 @@ export function ApproversPage() {
 
     return (
         <>
-            <ObjectTable data={data} objectProps={objectProps} />
+            <ObjectTable data={data} objectType={objectType} objectProps={objectProps} 
+            setObjectData={setObjectData}/>
         </>
     )
 }

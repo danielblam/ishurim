@@ -16,18 +16,29 @@ import { ObjectTable } from "../cmps/objecttable";
 import { useNavigate } from "react-router-dom";
 
 export function ApprovalsPage() {
-    var objectType = "approvers"
+    var objectType = "approvals"
 
     var objectProps = {
-        id:"approverId",
+        id:"approvalId",
+        nameHebrew:"אישור",
         columns:[
-            ["name","שם"],
-            ["fullName","שם מלא"]
+            ["hospitalizationId","מספר אשפוז"],
+            ["approvalDate","תאריך"],
+            ["testId","סוג בדיקה","tests"],
+            ["firstName", "שם פרטי"],
+            ["lastName", "שם משפחה"],
+            ["idNumber","תעודת זהות"],
+            ["department","מחלקה שולחת"],
+            ["vehicleId","כלי תחבורה","vehicles"],
+            ["approverId","המאשר","approvers"],
+            ["clerkId","פקיד","users"],
+            ["instituteId","מכון","institutes"]
         ]
     }
 
     const { token } = useContext(AppContext)
     var [objectData, setObjectData] = useState(null)
+    var [extraObjectData, setExtraObjectData] = useState({})
     var navigate = useNavigate();
 
     useEffect(() => {
@@ -37,7 +48,22 @@ export function ApprovalsPage() {
     const fetchData = async () => {
         var data = await objectService.getObjectList(objectType, token)
         if(typeof data == "number") navigate("/")
+            
+        var tests = await objectService.getObjectList("tests", token)
+        var vehicles = await objectService.getObjectList("vehicles", token)
+        var approvers = await objectService.getObjectList("approvers", token)
+        var institutes = await objectService.getObjectList("institutes", token)
+        var users = await objectService.getObjectList("users", token)
+            
         setObjectData(data)
+        setExtraObjectData({
+            tests:tests,
+            vehicles:vehicles,
+            approvers:approvers,
+            institutes:institutes,
+            users:users
+        })
+
     }
 
     if (objectData == null) return <div>Loading...</div>
@@ -46,7 +72,8 @@ export function ApprovalsPage() {
 
     return (
         <>
-            <ObjectTable data={data} objectProps={objectProps} width={100} />
+            <ObjectTable data={data} objectType={objectType} objectProps={objectProps}
+                setObjectData={setObjectData} extraObjectData={extraObjectData} width={100} />
         </>
     )
 }

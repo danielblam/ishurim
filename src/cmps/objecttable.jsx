@@ -7,27 +7,73 @@ import {
     Row,
     Cell,
 } from '@table-library/react-table-library/table';
-import { useState } from 'react';
+import { useTheme } from "@table-library/react-table-library/theme";
+import { getTheme } from "@table-library/react-table-library/baseline";
+
+import { useContext, useState } from 'react';
 
 import Button from 'react-bootstrap/Button';
 import Modal from 'react-bootstrap/Modal';
+import { objectService } from '../services/objectservice';
+import { AppContext } from "../AppContext"
 
-export function ObjectTable({ data, objectProps, width = "50" }) {
-    console.log(data)
+export function ObjectTable({ data, objectType, objectProps, width = "50", setObjectData, extraObjectData }) {
 
-    const [show, setShow] = useState(false);
+    console.log(extraObjectData)
+
+    const theme = useTheme(getTheme());
 
     const [editingId, setEditingId] = useState(null)
-    const [deletingId, setDeletingId] = useState(null)
 
+    const [addInputs, setAddInputs] = useState({})
+    const [show, setShow] = useState(false);
     const handleClose = () => setShow(false);
     const handleShow = () => setShow(true);
+
+    const [showDelete, setShowDelete] = useState(false)
+    const [deletingId, setDeletingId] = useState(null)
+    const handleCloseDelete = () => setShowDelete(false)
+    const handleShowDelete = () => setShowDelete(true)
+
+    const handleAddChange = (e) => {
+        const name = e.target.name;
+        const value = e.target.value;
+        setAddInputs(values => ({ ...values, [name]: value }))
+    }
+
+    const { token } = useContext(AppContext)
+
+    const handleAddNew = async () => {
+        console.log(addInputs)
+        if(Object.keys(addInputs).length < objectProps.columns.length) return
+        for(const input of Object.values(addInputs)) {
+            if(!input) return
+        }
+        await objectService.addObject(objectType, token, addInputs)
+        setObjectData(await objectService.getObjectList(objectType, token))
+        setAddInputs({})
+        handleClose()
+    }
+
+    const handleDelete = async () => {
+        if (deletingId == null) return
+        await objectService.deleteObject(objectType, token, deletingId)
+        // setObjectData(await objectService.getObjectList(objectType, token)) // lazy approach
+        setObjectData((prevData) => prevData.filter(object => object[objectProps.id] != deletingId))
+        handleCloseDelete()
+    }
+
+    const showPdf = async (approvalId) => {
+        const blob = await objectService.generatePdf(token, approvalId)
+        const url = URL.createObjectURL(blob);
+        window.open(url);
+    }
 
     return (
         <>
             <div className="rtl">
                 <div className={`rtl-table w-${width}`}>
-                    <Table data={data}>
+                    <Table data={data} theme={theme}>
                         {(tableList) => (
                             <>
                                 <Header>
@@ -40,15 +86,35 @@ export function ObjectTable({ data, objectProps, width = "50" }) {
                                     </HeaderRow>
                                 </Header>
                                 <Body>
-                                    {tableList.map((item) => (
+                                    {tableList.map((item, index) => (
                                         <Row key={item[objectProps.id]} item={item}>
                                             {objectProps.columns.map(column => {
-                                                var value = column[0]
-                                                return <Cell>{item[value]}</Cell>
+                                                if(column[0] == "clerkId") {
+                                                    var users = extraObjectData.users
+                                                    console.log(users)
+                                                    return <Cell>{users.find(user => user.userId == item.clerkId).fullName}</Cell>
+                                                }
+                                                if(column.length == 2) {
+                                                    var value = column[0]
+                                                    return <Cell>{item[value]}</Cell>
+                                                }   
+                                                else {
+                                                    var objects = extraObjectData[column[2]]
+                                                    var value = column[0]
+                                                    return <Cell>{objects.find(object => object[value] == item[value]).name}</Cell>
+                                                }
                                             })}
                                             <Cell>
-                                                <button className="btn p-0">❌</button>
+                                                <button className="btn p-0" onClick={() => {
+                                                    setDeletingId(item[objectProps.id])
+                                                    handleShowDelete()
+                                                }}>❌</button>
                                                 <button className="btn p-0">✏️</button>
+                                                {objectType != "approvals" ? <></> :
+                                                    <button className="btn p-0" onClick={() => {
+                                                        showPdf(item[objectProps.id])
+                                                    }}>📄</button>
+                                                }
                                             </Cell>
                                         </Row>
                                     ))}
@@ -62,27 +128,77 @@ export function ObjectTable({ data, objectProps, width = "50" }) {
 
             <Modal show={show} onHide={handleClose}>
                 <Modal.Header closeButton>
-                    <Modal.Title>Modal heading</Modal.Title>
+                    <Modal.Title>{`הוספת ${objectProps.nameHebrew}`}</Modal.Title>
                 </Modal.Header>
                 <Modal.Body>
                     {objectProps.columns.map(column => {
-                        return (
-                            <div className="rtl mb-2">
-                                <label>{column[1]}</label>
-                                <input className="form-control"></input>
-                            </div>
-                        )
+                        if (column[0] == "clerkId") {
+                            return (
+                                <></>
+                            )
+                        }
+                        if (column.length == 2) {
+                            return (
+                                <div className="rtl mb-2">
+                                    <label>{column[1]}</label>
+                                    <input
+                                        className="form-control"
+                                        name={column[0]}
+                                        onChange={handleAddChange}
+                                        value={addInputs[column[0]]}
+                                    />
+                                </div>
+                            )
+                        }
+                        else {
+                            console.log(extraObjectData)
+                            console.log(column[2])
+                            return (
+                                <div className="rtl mb-2">
+                                    <label>{column[1]}</label>
+                                    <select
+                                        className="form-control"
+                                        name={column[0]}
+                                        onChange={handleAddChange}
+                                    >
+                                        <option value=""></option>
+                                        {extraObjectData[column[2]].map(object => {
+                                            return (
+                                                <option value={object[column[0]]}>{object.name}</option>
+                                            )
+                                        })}
+                                    </select>
+                                </div>
+                            )
+                        }
+
                     })}
                 </Modal.Body>
                 <Modal.Footer>
-                    <Button variant="secondary" onClick={handleClose}>
-                        Close
-                    </Button>
-                    <Button variant="primary" onClick={handleClose}>
-                        Save Changes
+                    <Button variant="primary" onClick={handleAddNew}>
+                        הוספה
                     </Button>
                 </Modal.Footer>
             </Modal>
+
+            {deletingId == null ? <></> :
+                <Modal show={showDelete} onHide={handleCloseDelete}>
+                    <Modal.Header closeButton>
+                        <Modal.Title>{`מחיקת ${objectProps.nameHebrew}`}</Modal.Title>
+                    </Modal.Header>
+                    <Modal.Body dir="rtl">
+                        {`למחוק את ה${objectProps.nameHebrew} ${data.nodes.find(object => object[objectProps.id] == deletingId)?.name}?`}
+                    </Modal.Body>
+                    <Modal.Footer>
+                        <Button variant="danger" onClick={handleDelete}>
+                            למחוק
+                        </Button>
+                        <Button variant="secondary" onClick={handleCloseDelete}>
+                            ביטול
+                        </Button>
+                    </Modal.Footer>
+                </Modal>
+            }
         </>
     )
 }

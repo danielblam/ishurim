@@ -22,6 +22,7 @@ export function HospitalsPage() {
 
     var objectProps = {
         id:"hospitalId",
+        nameHebrew:"בית חולים",
         columns:[
             ["name","שם"] 
         ]
@@ -47,7 +48,8 @@ export function HospitalsPage() {
 
     return (
         <>
-            <ObjectTable data={data} objectProps={objectProps} />
+            <ObjectTable data={data} objectType={objectType} objectProps={objectProps} 
+            setObjectData={setObjectData}/>
         </>
     )
 }

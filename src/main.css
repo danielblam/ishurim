@@ -5,3 +5,5 @@
 @import './style/layouts/mainlayout.css';
 
 @import './style/pages/login.css';
+
+@import './style/cmps/objecttable.css';

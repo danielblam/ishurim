@@ -20,15 +20,18 @@ export function InstitutesPage() {
     var objectType = "institutes"
 
     var objectProps = {
-        id:"instituteId",
-        columns:[
-            ["name","שם"],
-            ["hospitalName","בית חולים"]
+        id: "instituteId",
+        nameHebrew: "מכון",
+        columns: [
+            ["name", "שם"],
+            ["hospitalId", "בית חולים", "hospitals"]
+            // ["hospitalName", "בית חולים", "hospitalId", "hospitals"]
         ]
     }
 
     const { token } = useContext(AppContext)
     var [objectData, setObjectData] = useState(null)
+    var [extraObjectData, setExtraObjectData] = useState({})
     var navigate = useNavigate();
 
     useEffect(() => {
@@ -37,16 +40,10 @@ export function InstitutesPage() {
 
     const fetchData = async () => {
         var data1 = await objectService.getObjectList(objectType, token)
-        if(typeof data1 == "number") navigate("/")
+        if (typeof data1 == "number") navigate("/")
         var data2 = await objectService.getObjectList("hospitals", token)
-        setObjectData(data1.map(institute => {
-            return {
-                instituteId:institute.instituteId,
-                name:institute.name,
-                hospitalId:institute.hospitalId,
-                hospitalName:data2.find(hospital => hospital.hospitalId == institute.hospitalId).name
-            }
-        }))
+        setObjectData(data1)
+        setExtraObjectData({hospitals: data2})
     }
 
     if (objectData == null) return <div>Loading...</div>
@@ -55,7 +52,8 @@ export function InstitutesPage() {
 
     return (
         <>
-            <ObjectTable data={data} objectProps={objectProps} />
+            <ObjectTable data={data} objectType={objectType} objectProps={objectProps}
+                setObjectData={setObjectData} extraObjectData={extraObjectData} fetchData={fetchData} />
         </>
     )
 }
