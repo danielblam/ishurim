@@ -14,6 +14,7 @@ import {
 } from '@table-library/react-table-library/table';
 import { ObjectTable } from "../cmps/objecttable";
 import { useNavigate } from "react-router-dom";
+import { ApprovalTable } from "../cmps/approvaltable";
 
 export function ApprovalsPage() {
     var objectType = "approvals"
@@ -32,6 +33,7 @@ export function ApprovalsPage() {
             ["vehicleId","כלי תחבורה","vehicles"],
             ["approverId","המאשר","approvers"],
             ["clerkId","פקיד","users"],
+            ["hospitalId","בית חולים"],
             ["instituteId","מכון","institutes"]
         ]
     }
@@ -53,6 +55,7 @@ export function ApprovalsPage() {
         var vehicles = await objectService.getObjectList("vehicles", token)
         var approvers = await objectService.getObjectList("approvers", token)
         var institutes = await objectService.getObjectList("institutes", token)
+        var hospitals = await objectService.getObjectList("hospitals", token)
         var users = await objectService.getObjectList("users", token)
             
         setObjectData(data)
@@ -61,6 +64,7 @@ export function ApprovalsPage() {
             vehicles:vehicles,
             approvers:approvers,
             institutes:institutes,
+            hospitals:hospitals,
             users:users
         })
 
@@ -72,8 +76,8 @@ export function ApprovalsPage() {
 
     return (
         <>
-            <ObjectTable data={data} objectType={objectType} objectProps={objectProps}
-                setObjectData={setObjectData} extraObjectData={extraObjectData} width={100} />
+            <ApprovalTable data={data} objectType={objectType} objectProps={objectProps}
+                setObjectData={setObjectData} extraObjectData={extraObjectData} />
         </>
     )
 }
