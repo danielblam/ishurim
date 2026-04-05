@@ -6,7 +6,7 @@ import { AppContext } from "../AppContext";
 
 export function LoginPage() {
 
-    const { token, setToken } = useContext(AppContext)
+    const { token, setToken, userId, setUserId } = useContext(AppContext)
 
     var [inputs, setInputs] = useState({
         name: "",
@@ -39,8 +39,9 @@ export function LoginPage() {
         }
         setFailText("")
         console.log(result.token)
-        authService.saveToken(result.token)
+        authService.saveToken(result.token, result.userId)
         setToken(result.token)
+        setUserId(result.userId)
         navigate("/dash", { state: { refresh: true } })
     }
 

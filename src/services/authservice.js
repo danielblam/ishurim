@@ -26,10 +26,10 @@ async function login(inputs) {
     return await response.json()
 }
 
-function saveToken(token) {
+function saveToken(token, user) {
     localStorage.setItem("sessiontoken", token)
+    localStorage.setItem("userid", user)
 }
 function getToken() {
-    localStorage.getItem("sessiontoken")
 }
 

@@ -19,13 +19,17 @@ import { AppContext } from "../AppContext"
 
 export function ApprovalTable({ data, objectType, objectProps, width = "100", setObjectData, extraObjectData }) {
 
-    console.log(extraObjectData)
-
+    const { token, userId } = useContext(AppContext)
     const theme = useTheme(getTheme());
 
     const [editingId, setEditingId] = useState(null)
 
-    const [addInputs, setAddInputs] = useState({})
+    const [addInputs, setAddInputs] = useState({
+        approvalId: 0,
+        clerkId: Number(userId),
+        note: ""
+    })
+    const [instituteDisabled, setInstituteDisabled] = useState(true)
     const [show, setShow] = useState(false);
     const handleClose = () => setShow(false);
     const handleShow = () => setShow(true);
@@ -38,20 +42,36 @@ export function ApprovalTable({ data, objectType, objectProps, width = "100", se
     const handleAddChange = (e) => {
         const name = e.target.name;
         const value = e.target.value;
-        setAddInputs(values => ({ ...values, [name]: value }))
+        if(["approverId", "clerkId", "hospitalId","instituteId","testId","vehicleId"].includes(name))
+            setAddInputs(values => ({ ...values, [name]: Number(value) }))
+        else {
+            setAddInputs(values => ({ ...values, [name]: value }))
+        }
+        if (name == "hospitalId") {
+            setInstituteDisabled(value == "")
+        }
     }
 
-    const { token } = useContext(AppContext)
+    const resetAddInputs = () => {
+        setAddInputs({
+            approvalId: 0,
+            clerkId: Number(userId),
+            note: ""
+        })
+    }
+
 
     const handleAddNew = async () => {
         console.log(addInputs)
-        if (Object.keys(addInputs).length < objectProps.columns.length) return
-        for (const input of Object.values(addInputs)) {
-            if (!input) return
+        if (Object.keys(addInputs).length < 14) return
+        for (const input of Object.keys(addInputs)) {
+            if (["approvalId", "clerkId", "note"].includes(input)) continue
+            if (!addInputs[input]) return
         }
+        console.log("Can go through")
         await objectService.addObject(objectType, token, addInputs)
         setObjectData(await objectService.getObjectList(objectType, token))
-        setAddInputs({})
+        resetAddInputs()
         handleClose()
     }
 
@@ -91,7 +111,6 @@ export function ApprovalTable({ data, objectType, objectProps, width = "100", se
                                             {objectProps.columns.map(column => {
                                                 if (column[0] == "clerkId") {
                                                     var users = extraObjectData.users
-                                                    console.log(users)
                                                     return <Cell>{users.find(user => user.userId == item.clerkId).fullName}</Cell>
                                                 }
                                                 else if (column[0] == "hospitalId") {
@@ -184,7 +203,7 @@ export function ApprovalTable({ data, objectType, objectProps, width = "100", se
                     <div className="row">
                         <div className="rtl mb-2 col-4">
                             <label>תעודת זהות</label>
-                            <input className="form-control"
+                            <input className="form-control" maxLength={9}
                                 name="idNumber" onChange={handleAddChange}
                                 value={addInputs.idNumber}
                             />
@@ -232,8 +251,8 @@ export function ApprovalTable({ data, objectType, objectProps, width = "100", se
                         <div className="rtl mb-2 col-6">
                             <label>פקיד</label>
                             <input className="form-control" disabled
-                                name="department" onChange={handleAddChange}
-                                value={addInputs.department}
+                                name="clerkId" onChange={handleAddChange}
+                                value={extraObjectData.users.find(user => user.userId == userId).fullName}
                             />
                         </div>
                         <div className="rtl mb-2 col-6">
@@ -250,14 +269,20 @@ export function ApprovalTable({ data, objectType, objectProps, width = "100", se
                             </select>
                         </div>
                     </div>
-                    {/* approver, clerk */}
+                    {/* hospital, institute */}
                     <div className="row">
                         <div className="rtl mb-2 col-6">
                             <label>מכון</label>
-                            <input className="form-control" disabled
-                                name="department" onChange={handleAddChange}
-                                value={addInputs.department}
-                            />
+                            <select className="form-control" disabled={instituteDisabled}
+                                name="instituteId" onChange={handleAddChange}
+                            >
+                                <option value=""></option>
+                                {extraObjectData.institutes.filter(inst => inst.hospitalId == addInputs.hospitalId).map(object => {
+                                    return (
+                                        <option value={object.instituteId}>{object.name}</option>
+                                    )
+                                })}
+                            </select>
                         </div>
                         <div className="rtl mb-2 col-6">
                             <label>בית חולים</label>
@@ -273,6 +298,14 @@ export function ApprovalTable({ data, objectType, objectProps, width = "100", se
                             </select>
                         </div>
                     </div>
+                    <div className="rtl">
+                        <label>הערה</label>
+                        <textarea className="form-control dont-resize" rows="3" maxLength={500}
+                            name="note" onChange={handleAddChange}>
+
+                        </textarea>
+                    </div>
+
                 </Modal.Body>
                 <Modal.Footer>
                     <Button variant="primary" onClick={handleAddNew}>
