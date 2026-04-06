@@ -167,7 +167,11 @@ export function ApprovalTable({ data, objectType, objectProps, width = "100", se
                         )}
                     </Table>
                 </div>
-                <button className="btn fs-4 m-2" onClick={handleShow}>➕</button>
+                <button className="btn fs-4 m-2" onClick={() => {
+                    handleShow()
+                    setAddInputs({})
+                    setEditingId(null)
+                }}>➕</button>
             </div>
 
             <Modal show={show} onHide={handleClose}>
