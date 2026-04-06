@@ -19,8 +19,6 @@ import { AppContext } from "../AppContext"
 
 export function ObjectTable({ data, objectType, objectProps, width = "50", setObjectData, extraObjectData }) {
 
-    console.log(extraObjectData)
-
     const theme = useTheme(getTheme());
 
     const [editingId, setEditingId] = useState(null)
@@ -45,11 +43,14 @@ export function ObjectTable({ data, objectType, objectProps, width = "50", setOb
 
     const handleAddNew = async () => {
         console.log(addInputs)
-        if(Object.keys(addInputs).length < objectProps.columns.length) return
-        for(const input of Object.values(addInputs)) {
-            if(!input) return
+        if (Object.keys(addInputs).length < objectProps.columns.length) return
+        for (const input of Object.values(addInputs)) {
+            if (!input) return
         }
-        await objectService.addObject(objectType, token, addInputs)
+        if (editingId) await objectService.editObject(objectType, token, addInputs)
+        else {
+            await objectService.addObject(objectType, token, addInputs)
+        }
         setObjectData(await objectService.getObjectList(objectType, token))
         setAddInputs({})
         handleClose()
@@ -67,6 +68,15 @@ export function ObjectTable({ data, objectType, objectProps, width = "50", setOb
         const blob = await objectService.generatePdf(token, approvalId)
         const url = URL.createObjectURL(blob);
         window.open(url);
+    }
+
+    const startEditing = (id) => {
+        setEditingId(id)
+        var objects = data.nodes
+        var editing = objects.find(object => object[objectProps.id] == id)
+        console.log(editing)
+        setAddInputs(editing)
+        handleShow()
     }
 
     return (
@@ -89,15 +99,10 @@ export function ObjectTable({ data, objectType, objectProps, width = "50", setOb
                                     {tableList.map((item, index) => (
                                         <Row key={item[objectProps.id]} item={item}>
                                             {objectProps.columns.map(column => {
-                                                if(column[0] == "clerkId") {
-                                                    var users = extraObjectData.users
-                                                    console.log(users)
-                                                    return <Cell>{users.find(user => user.userId == item.clerkId).fullName}</Cell>
-                                                }
-                                                if(column.length == 2) {
+                                                if (column.length == 2) {
                                                     var value = column[0]
                                                     return <Cell>{item[value]}</Cell>
-                                                }   
+                                                }
                                                 else {
                                                     var objects = extraObjectData[column[2]]
                                                     var value = column[0]
@@ -109,7 +114,9 @@ export function ObjectTable({ data, objectType, objectProps, width = "50", setOb
                                                     setDeletingId(item[objectProps.id])
                                                     handleShowDelete()
                                                 }}>❌</button>
-                                                <button className="btn p-0">✏️</button>
+                                                <button className="btn p-0" onClick={() => [
+                                                    startEditing(item[objectProps.id])
+                                                ]}>✏️</button>
                                                 {objectType != "approvals" ? <></> :
                                                     <button className="btn p-0" onClick={() => {
                                                         showPdf(item[objectProps.id])
@@ -123,7 +130,11 @@ export function ObjectTable({ data, objectType, objectProps, width = "50", setOb
                         )}
                     </Table>
                 </div>
-                <button className="btn fs-4 m-2" onClick={handleShow}>➕</button>
+                <button className="btn fs-4 m-2" onClick={() => {
+                    handleShow()
+                    setAddInputs({})
+                    setEditingId(null)
+                }}>➕</button>
             </div>
 
             <Modal show={show} onHide={handleClose}>
@@ -151,8 +162,6 @@ export function ObjectTable({ data, objectType, objectProps, width = "50", setOb
                             )
                         }
                         else {
-                            console.log(extraObjectData)
-                            console.log(column[2])
                             return (
                                 <div className="rtl mb-2">
                                     <label>{column[1]}</label>
@@ -160,6 +169,7 @@ export function ObjectTable({ data, objectType, objectProps, width = "50", setOb
                                         className="form-control"
                                         name={column[0]}
                                         onChange={handleAddChange}
+                                        value={addInputs[column[0]]}
                                     >
                                         <option value=""></option>
                                         {extraObjectData[column[2]].map(object => {

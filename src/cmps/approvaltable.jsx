@@ -69,7 +69,10 @@ export function ApprovalTable({ data, objectType, objectProps, width = "100", se
             if (!addInputs[input]) return
         }
         console.log("Can go through")
-        await objectService.addObject(objectType, token, addInputs)
+        if (editingId) await objectService.editObject(objectType, token, addInputs)
+        else {
+            await objectService.addObject(objectType, token, addInputs)
+        }
         setObjectData(await objectService.getObjectList(objectType, token))
         resetAddInputs()
         handleClose()
@@ -87,6 +90,17 @@ export function ApprovalTable({ data, objectType, objectProps, width = "100", se
         const blob = await objectService.generatePdf(token, approvalId)
         const url = URL.createObjectURL(blob);
         window.open(url);
+    }
+
+    const startEditing = (id) => {
+        setEditingId(id)
+        setInstituteDisabled(false)
+        var approvals = data.nodes
+        var editing = approvals.find(approval => approval.approvalId == id)
+        console.log(editing)
+        editing.hospitalId = extraObjectData.institutes.find(inst => inst.instituteId == editing.instituteId).hospitalId
+        setAddInputs(editing)
+        handleShow()
     }
 
     return (
@@ -137,7 +151,9 @@ export function ApprovalTable({ data, objectType, objectProps, width = "100", se
                                                     setDeletingId(item[objectProps.id])
                                                     handleShowDelete()
                                                 }}>❌</button>
-                                                <button className="btn p-0">✏️</button>
+                                                <button className="btn p-0" onClick={() => [
+                                                    startEditing(item[objectProps.id])
+                                                ]}>✏️</button>
                                                 {objectType != "approvals" ? <></> :
                                                     <button className="btn p-0" onClick={() => {
                                                         showPdf(item[objectProps.id])
@@ -189,6 +205,7 @@ export function ApprovalTable({ data, objectType, objectProps, width = "100", se
                             <label>סוג בדיקה</label>
                             <select className="form-control"
                                 name="testId" onChange={handleAddChange}
+                                value={addInputs.testId}
                             >
                                 <option value=""></option>
                                 {extraObjectData.tests.map(object => {
@@ -229,6 +246,7 @@ export function ApprovalTable({ data, objectType, objectProps, width = "100", se
                             <label>כלי תחבורה</label>
                             <select className="form-control"
                                 name="vehicleId" onChange={handleAddChange}
+                                value={addInputs.vehicleId}
                             >
                                 <option value=""></option>
                                 {extraObjectData.vehicles.map(object => {
@@ -259,6 +277,7 @@ export function ApprovalTable({ data, objectType, objectProps, width = "100", se
                             <label>המאשר</label>
                             <select className="form-control"
                                 name="approverId" onChange={handleAddChange}
+                                value={addInputs.approverId}
                             >
                                 <option value=""></option>
                                 {extraObjectData.approvers.map(object => {
@@ -275,6 +294,7 @@ export function ApprovalTable({ data, objectType, objectProps, width = "100", se
                             <label>מכון</label>
                             <select className="form-control" disabled={instituteDisabled}
                                 name="instituteId" onChange={handleAddChange}
+                                value={addInputs.instituteId}
                             >
                                 <option value=""></option>
                                 {extraObjectData.institutes.filter(inst => inst.hospitalId == addInputs.hospitalId).map(object => {
@@ -288,6 +308,7 @@ export function ApprovalTable({ data, objectType, objectProps, width = "100", se
                             <label>בית חולים</label>
                             <select className="form-control"
                                 name="hospitalId" onChange={handleAddChange}
+                                value={addInputs.hospitalId}
                             >
                                 <option value=""></option>
                                 {extraObjectData.hospitals.map(object => {
@@ -301,7 +322,8 @@ export function ApprovalTable({ data, objectType, objectProps, width = "100", se
                     <div className="rtl">
                         <label>הערה</label>
                         <textarea className="form-control dont-resize" rows="3" maxLength={500}
-                            name="note" onChange={handleAddChange}>
+                            name="note" onChange={handleAddChange}
+                            value={addInputs.note}>
 
                         </textarea>
                     </div>
