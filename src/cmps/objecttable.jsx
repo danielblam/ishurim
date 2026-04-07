@@ -19,7 +19,20 @@ import { AppContext } from "../AppContext"
 
 export function ObjectTable({ data, objectType, objectProps, width = "50", setObjectData, extraObjectData }) {
 
-    const theme = useTheme(getTheme());
+    const theme = useTheme([getTheme(), {
+        HeaderRow: `
+        background-color: rgb(244, 244, 244);
+      `,
+        Row: `
+        &:nth-of-type(odd) {
+          background-color: rgb(255, 255, 255);
+        }
+
+        &:nth-of-type(even) {
+          background-color: rgb(244, 244, 244);
+        }
+      `,
+    }]);
 
     const [editingId, setEditingId] = useState(null)
 
@@ -83,7 +96,7 @@ export function ObjectTable({ data, objectType, objectProps, width = "50", setOb
         <>
             <div className="rtl">
                 <div className={`rtl-table w-${width}`}>
-                    <Table data={data} theme={theme}>
+                    <Table data={data} theme={theme} className="table-striped">
                         {(tableList) => (
                             <>
                                 <Header>
@@ -130,11 +143,11 @@ export function ObjectTable({ data, objectType, objectProps, width = "50", setOb
                         )}
                     </Table>
                 </div>
-                <button className="btn fs-4 m-2" onClick={() => {
+                <button className="btn btn-primary fs-6 m-2" onClick={() => {
                     handleShow()
                     setAddInputs({})
                     setEditingId(null)
-                }}>➕</button>
+                }}>➕ להוסיף חדש</button>
             </div>
 
             <Modal show={show} onHide={handleClose}>

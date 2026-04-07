@@ -20,7 +20,23 @@ import { AppContext } from "../AppContext"
 export function ApprovalTable({ data, objectType, objectProps, width = "100", setObjectData, extraObjectData }) {
 
     const { token, userId } = useContext(AppContext)
-    const theme = useTheme(getTheme());
+
+
+    // const theme = useTheme(getTheme());
+    const theme = useTheme([getTheme(), {
+        HeaderRow: `
+        background-color: rgb(244, 244, 244);
+      `,
+        Row: `
+        &:nth-of-type(odd) {
+          background-color: rgb(255, 255, 255);
+        }
+
+        &:nth-of-type(even) {
+          background-color: rgb(244, 244, 244);
+        }
+      `,
+    }]);
 
     const [editingId, setEditingId] = useState(null)
 
@@ -42,7 +58,7 @@ export function ApprovalTable({ data, objectType, objectProps, width = "100", se
     const handleAddChange = (e) => {
         const name = e.target.name;
         const value = e.target.value;
-        if(["approverId", "clerkId", "hospitalId","instituteId","testId","vehicleId"].includes(name))
+        if (["approverId", "clerkId", "hospitalId", "instituteId", "testId", "vehicleId"].includes(name))
             setAddInputs(values => ({ ...values, [name]: Number(value) }))
         else {
             setAddInputs(values => ({ ...values, [name]: value }))
@@ -107,7 +123,7 @@ export function ApprovalTable({ data, objectType, objectProps, width = "100", se
         <>
             <div className="rtl">
                 <div className={`rtl-table w-${width}`}>
-                    <Table data={data} theme={theme}>
+                    <Table data={data} theme={theme} className="">
                         {(tableList) => (
                             <>
                                 <Header>
@@ -167,11 +183,11 @@ export function ApprovalTable({ data, objectType, objectProps, width = "100", se
                         )}
                     </Table>
                 </div>
-                <button className="btn fs-4 m-2" onClick={() => {
+                <button className="btn btn-primary fs-6 m-2" onClick={() => {
                     handleShow()
                     setAddInputs({})
                     setEditingId(null)
-                }}>➕</button>
+                }}>➕ להוסיף חדש</button>
             </div>
 
             <Modal show={show} onHide={handleClose}>

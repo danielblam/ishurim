@@ -7,13 +7,6 @@
     text-align: right;
 }
 
-.rtl-table {
-    display:flex;
-    justify-content: flex-end;
-    margin-left:auto;
-    direction:rtl;
-}
-
 .dont-resize {
     resize: none;
 }
