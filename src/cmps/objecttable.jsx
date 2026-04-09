@@ -96,7 +96,7 @@ export function ObjectTable({ data, objectType, objectProps, width = "50", setOb
         <>
             <div className="rtl">
                 <div className={`rtl-table w-${width}`}>
-                    <Table data={data} theme={theme} className="table-striped">
+                    <Table data={data} theme={theme} className="">
                         {(tableList) => (
                             <>
                                 <Header>

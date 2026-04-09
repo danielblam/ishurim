@@ -10,12 +10,13 @@ import {
 import { useTheme } from "@table-library/react-table-library/theme";
 import { getTheme } from "@table-library/react-table-library/baseline";
 
-import { useContext, useState } from 'react';
+import { useContext, useEffect, useState } from 'react';
 
 import Button from 'react-bootstrap/Button';
 import Modal from 'react-bootstrap/Modal';
 import { objectService } from '../services/objectservice';
 import { AppContext } from "../AppContext"
+import { useSearchParams } from 'react-router-dom';
 
 export function ApprovalTable({ data, objectType, objectProps, width = "100", setObjectData, extraObjectData }) {
 
@@ -46,9 +47,15 @@ export function ApprovalTable({ data, objectType, objectProps, width = "100", se
         note: ""
     })
     const [instituteDisabled, setInstituteDisabled] = useState(true)
-    const [show, setShow] = useState(false);
+
+    const [searchParams, setSearchParams] = useSearchParams()
+
+    const [show, setShow] = useState(searchParams.get("create") == "true");
     const handleClose = () => setShow(false);
     const handleShow = () => setShow(true);
+    useEffect(() => {
+        setShow(searchParams.get("create") === "true");
+    }, [searchParams]);
 
     const [showDelete, setShowDelete] = useState(false)
     const [deletingId, setDeletingId] = useState(null)
@@ -75,7 +82,6 @@ export function ApprovalTable({ data, objectType, objectProps, width = "100", se
             note: ""
         })
     }
-
 
     const handleAddNew = async () => {
         console.log(addInputs)
@@ -119,6 +125,10 @@ export function ApprovalTable({ data, objectType, objectProps, width = "100", se
         handleShow()
     }
 
+    const findObject = (objectName, objectIdName, objectId) => {
+        return extraObjectData[objectName].find(object => object[objectIdName] == objectId)
+    }
+
     return (
         <>
             <div className="rtl">
@@ -128,40 +138,36 @@ export function ApprovalTable({ data, objectType, objectProps, width = "100", se
                             <>
                                 <Header>
                                     <HeaderRow>
-                                        {objectProps.columns.map(column => {
-                                            var value = column[1]
-                                            return <HeaderCell>{value}</HeaderCell>
-                                        })}
+                                        <HeaderCell>מספר שובר</HeaderCell>
+                                        <HeaderCell>מספר אשפוז</HeaderCell>
+                                        <HeaderCell>תאריך</HeaderCell>
+                                        <HeaderCell>בית חולים</HeaderCell>
+                                        <HeaderCell>מכון</HeaderCell>
+                                        <HeaderCell>סוג בדיקה</HeaderCell>
+                                        <HeaderCell>המאשר</HeaderCell>
+                                        <HeaderCell>פקיד</HeaderCell>
+                                        <HeaderCell>שם החולה</HeaderCell>
+                                        <HeaderCell>תעודת זהות</HeaderCell>
                                         <HeaderCell>פעולות</HeaderCell>
                                     </HeaderRow>
                                 </Header>
                                 <Body>
                                     {tableList.map((item, index) => (
-                                        <Row key={item[objectProps.id]} item={item}>
-                                            {objectProps.columns.map(column => {
-                                                if (column[0] == "clerkId") {
-                                                    var users = extraObjectData.users
-                                                    return <Cell>{users.find(user => user.userId == item.clerkId).fullName}</Cell>
-                                                }
-                                                else if (column[0] == "hospitalId") {
-                                                    var hospitals = extraObjectData.hospitals
-                                                    var hospitalId = extraObjectData.institutes.find(i => i.instituteId == item.instituteId).hospitalId
-                                                    return <Cell>{hospitals.find(hospital => hospital.hospitalId == hospitalId).name}</Cell>
-                                                }
-                                                else if (column[0] == "approverId") {
-                                                    var approvers = extraObjectData.approvers
-                                                    return <Cell>{approvers.find(approver => approver.approverId == item.approverId).fullName}</Cell>
-                                                }
-                                                else if (column.length == 2) {
-                                                    var value = column[0]
-                                                    return <Cell>{item[value]}</Cell>
-                                                }
-                                                else {
-                                                    var objects = extraObjectData[column[2]]
-                                                    var value = column[0]
-                                                    return <Cell>{objects.find(object => object[value] == item[value]).name}</Cell>
-                                                }
-                                            })}
+                                        <Row key={item.approvalId} item={item}>
+                                            <Cell>{item.approvalId}</Cell>
+                                            <Cell>{item.hospitalizationId}</Cell>
+                                            <Cell>{item.approvalDate.split("-").reverse().join("/")}</Cell>
+                                            <Cell>{(() => {
+                                                var hospitalId = findObject("institutes", "instituteId", item.instituteId).hospitalId
+                                                var hospital = findObject("hospitals", "hospitalId", hospitalId)
+                                                return hospital.name
+                                            })()}</Cell>
+                                            <Cell>{findObject("institutes", "instituteId", item.instituteId).name}</Cell>
+                                            <Cell>{findObject("tests", "testId", item.testId).name}</Cell>
+                                            <Cell>{findObject("approvers", "approverId", item.approverId).fullName}</Cell>
+                                            <Cell>{findObject("users", "userId", item.clerkId).fullName}</Cell>
+                                            <Cell>{`${item.firstName} ${item.lastName}`}</Cell>
+                                            <Cell>{item.idNumber}</Cell>
                                             <Cell>
                                                 <button className="btn p-0" onClick={() => {
                                                     setDeletingId(item[objectProps.id])
@@ -341,7 +347,7 @@ export function ApprovalTable({ data, objectType, objectProps, width = "100", se
                     </div>
                     <div className="rtl">
                         <label>הערה</label>
-                        <textarea className="form-control dont-resize" rows="3" maxLength={500}
+                        <textarea className="form-control dont-resize" rows="3" maxLength={300}
                             name="note" onChange={handleAddChange}
                             value={addInputs.note}>
 
