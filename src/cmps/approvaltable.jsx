@@ -120,7 +120,7 @@ export function ApprovalTable({ data, objectType, objectProps, width = "100", se
         var approvals = data.nodes
         var editing = approvals.find(approval => approval.approvalId == id)
         console.log(editing)
-        editing.hospitalId = extraObjectData.institutes.find(inst => inst.instituteId == editing.instituteId).hospitalId
+        editing.hospitalId = findObject("institutes","instituteId",editing.instituteId).hospitalId
         setAddInputs(editing)
         handleShow()
     }
@@ -153,7 +153,9 @@ export function ApprovalTable({ data, objectType, objectProps, width = "100", se
                                 </Header>
                                 <Body>
                                     {tableList.map((item, index) => (
-                                        <Row key={item.approvalId} item={item}>
+                                        <Row key={item.approvalId} item={item} onDoubleClick={() => {
+                                            //console.log(`clicked this row! ${item.approvalId}`)
+                                        }}>
                                             <Cell>{item.approvalId}</Cell>
                                             <Cell>{item.hospitalizationId}</Cell>
                                             <Cell>{item.approvalDate.split("-").reverse().join("/")}</Cell>
@@ -191,7 +193,7 @@ export function ApprovalTable({ data, objectType, objectProps, width = "100", se
                 </div>
                 <button className="btn btn-primary fs-6 m-2" onClick={() => {
                     handleShow()
-                    setAddInputs({})
+                    resetAddInputs()
                     setEditingId(null)
                 }}>➕ להוסיף חדש</button>
             </div>
@@ -207,7 +209,7 @@ export function ApprovalTable({ data, objectType, objectProps, width = "100", se
                             <label>מספר שובר </label>
                             <input className="form-control" disabled
                                 name="approvalId" onChange={handleAddChange}
-                                value={addInputs.approvalId}
+                                value={addInputs.approvalId ? addInputs.approvalId : ""}
                             />
                         </div>
                         <div className="rtl mb-2 col-6">
