@@ -199,7 +199,7 @@ export function ApprovalTable({ data, objectType, objectProps, width = "100", se
             </div>
 
             <Modal show={show} onHide={handleClose}>
-                <Modal.Header closeButton>
+                <Modal.Header closeButton className="rtl">
                     <Modal.Title>{`הוספת ${objectProps.nameHebrew}`}</Modal.Title>
                 </Modal.Header>
                 <Modal.Body>

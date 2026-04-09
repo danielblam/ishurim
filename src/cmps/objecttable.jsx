@@ -151,8 +151,9 @@ export function ObjectTable({ data, objectType, objectProps, width = "50", setOb
             </div>
 
             <Modal show={show} onHide={handleClose}>
-                <Modal.Header closeButton>
+                <Modal.Header closeButton className="rtl">
                     <Modal.Title>{`הוספת ${objectProps.nameHebrew}`}</Modal.Title>
+                    {/* <button type="button" className="btn-close" data-bs-dismiss="modal"></button> */}
                 </Modal.Header>
                 <Modal.Body>
                     {objectProps.columns.map(column => {

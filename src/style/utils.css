@@ -10,3 +10,8 @@
 .dont-resize {
     resize: none;
 }
+
+.btn-close {
+    margin-left:0!important;
+    margin-right:auto!important;
+}
