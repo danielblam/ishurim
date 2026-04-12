@@ -2,9 +2,9 @@
     height: 6vh;
 }
 
-.main-dashboard {
-    background-color: lightgrey;
-}
+/* .main-dashboard {
+    background-color: rgb(36, 35, 35);
+} */
 
 .main-dashboard-nav {
     direction: rtl;
@@ -14,8 +14,9 @@
 
     padding: 1.25vw;
 
-    &>h1 {
+    &>h2 {
         padding-bottom: 2vh;
+        margin-right:8px;
     }
 
     &>div {
@@ -28,14 +29,18 @@
             border-radius: 10px;
 
             display: block;
-            color: black;
+            color: rgb(160,160,160);
             text-decoration: none;
 
             transition: background-color 0.1s linear;
         }
 
         & :hover {
-            background-color: rgb(184, 184, 184);
+            background-color: rgb(50, 52, 56);
         }
     }
+}
+
+.current-page {
+    color:rgb(71,139,235)!important;
 }
