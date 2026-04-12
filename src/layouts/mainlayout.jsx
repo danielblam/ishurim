@@ -1,11 +1,17 @@
 import { NavLink, Link, Outlet } from "react-router-dom";
 
+import { AppContext } from "../AppContext";
+import { useContext } from "react";
+
 export function MainLayout() {
+
+    const { username } = useContext(AppContext)
+
     return (
         <div className="main-layout-container row">
             <div className="col-10 pe-0">
-                <div className="top-bar bg-secondary">
-                    things to put here: logged in as (user), extra buttons, etc.
+                <div className="top-bar rtl d-flex align-items-center px-3 text-white">
+                    מחובר כ-{<span className="fw-bold">{username}</span>}
                 </div>
                 <Outlet />
             </div>
