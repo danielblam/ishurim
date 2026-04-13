@@ -1,11 +1,15 @@
 .top-bar {
     height: 6vh;
-    background-color:rgb(68, 68, 77);
+    background-color:hsl(207, 46%, 42%);
 }
 
 /* .main-dashboard {
     background-color: rgb(36, 35, 35);
 } */
+
+.main-dashboard {
+    background-color: hsl(208, 69%, 24%);
+}
 
 .main-dashboard-nav {
     direction: rtl;
@@ -38,17 +42,18 @@
         }
 
         & :hover {
-            background-color: rgb(50, 52, 56);
+            background-color: hsl(207, 73%, 29%);
         }
     }
 }
 
 .current-page {
-    color:hsl(205, 80%, 60%)!important;
+    color:hsl(205, 100%, 75%)!important;
+    font-weight: bold;
 }
 
 hr {
     margin-right:-20px;
     width:200%;
-    color:#bbbbbb;
+    color:hsl(209, 100%, 74%);
 }

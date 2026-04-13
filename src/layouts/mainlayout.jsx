@@ -15,7 +15,7 @@ export function MainLayout() {
                 </div>
                 <Outlet />
             </div>
-            <div className="main-dashboard col-2 vh-100 bg-dark text-white">
+            <div className="main-dashboard col-2 vh-100 text-white">
                 <nav className="main-dashboard-nav">
                     <h3 className="sidebar-header">מערכת אישורים</h3>
                     <hr></hr>
