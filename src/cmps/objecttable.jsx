@@ -19,20 +19,23 @@ import { AppContext } from "../AppContext"
 
 export function ObjectTable({ data, objectType, objectProps, width = "50", setObjectData, extraObjectData }) {
 
-    const theme = useTheme([getTheme(), {
-        HeaderRow: `
-        background-color: rgb(244, 244, 244);
+    const theme = useTheme([
+        getTheme(),
+        {
+            HeaderRow: `
+        background-color: #eaf5fd;
       `,
-        Row: `
+            Row: `
         &:nth-of-type(odd) {
-          background-color: rgb(255, 255, 255);
+          background-color: #d2e9fb;
         }
 
         &:nth-of-type(even) {
-          background-color: rgb(244, 244, 244);
+          background-color: #eaf5fd;
         }
       `,
-    }]);
+        },
+    ]);
 
     const [editingId, setEditingId] = useState(null)
 

@@ -24,20 +24,23 @@ export function ApprovalTable({ data, objectType, objectProps, width = "100", se
 
 
     // const theme = useTheme(getTheme());
-    const theme = useTheme([getTheme(), {
-        HeaderRow: `
-        background-color: rgb(244, 244, 244);
+    const theme = useTheme([
+        getTheme(),
+        {
+            HeaderRow: `
+        background-color: #eaf5fd;
       `,
-        Row: `
+            Row: `
         &:nth-of-type(odd) {
-          background-color: rgb(255, 255, 255);
+          background-color: #d2e9fb;
         }
 
         &:nth-of-type(even) {
-          background-color: rgb(244, 244, 244);
+          background-color: #eaf5fd;
         }
       `,
-    }]);
+        },
+    ]);
 
     const [editingId, setEditingId] = useState(null)
 
@@ -120,7 +123,7 @@ export function ApprovalTable({ data, objectType, objectProps, width = "100", se
         var approvals = data.nodes
         var editing = approvals.find(approval => approval.approvalId == id)
         console.log(editing)
-        editing.hospitalId = findObject("institutes","instituteId",editing.instituteId).hospitalId
+        editing.hospitalId = findObject("institutes", "instituteId", editing.instituteId).hospitalId
         setAddInputs(editing)
         handleShow()
     }

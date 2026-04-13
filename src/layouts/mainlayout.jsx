@@ -17,7 +17,8 @@ export function MainLayout() {
             </div>
             <div className="main-dashboard col-2 vh-100 bg-dark text-white">
                 <nav className="main-dashboard-nav">
-                    <h2>תפריט ראשי</h2>
+                    <h3 className="sidebar-header">מערכת אישורים</h3>
+                    <hr></hr>
                     <div><NavLink to="/dash/approvals?create=true">
                         אישור חדש
                     </NavLink></div>

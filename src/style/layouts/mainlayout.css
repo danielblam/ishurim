@@ -15,9 +15,10 @@
 
     padding: 1.25vw;
 
-    &>h2 {
-        padding-bottom: 2vh;
+    &>.sidebar-header {
+        padding-bottom: 0vh;
         margin-right:8px;
+        text-align: center;
     }
 
     &>div {
@@ -43,5 +44,11 @@
 }
 
 .current-page {
-    color:rgb(71,139,235)!important;
+    color:hsl(205, 80%, 60%)!important;
+}
+
+hr {
+    margin-right:-20px;
+    width:200%;
+    color:#bbbbbb;
 }
