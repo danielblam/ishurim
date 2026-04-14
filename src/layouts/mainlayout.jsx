@@ -34,6 +34,9 @@ export function MainLayout() {
                     <div><NavLink to="/dash/vehicles" className={({ isActive }) => isActive ? "current-page" : ""}>
                         כלי תחבורה
                     </NavLink></div>
+                    <div><NavLink to="/dash/departments" className={({ isActive }) => isActive ? "current-page" : ""}>
+                        מחלקות
+                    </NavLink></div>
                     <div><NavLink to="/dash/institutes" className={({ isActive }) => isActive ? "current-page" : ""}>
                         מכונים
                     </NavLink></div>

@@ -26,9 +26,8 @@ async function login(inputs) {
     return await response.json()
 }
 
-function saveToken(token, user, name) {
+function saveToken(token, name) {
     localStorage.setItem("sessiontoken", token)
-    localStorage.setItem("userid", user)
     localStorage.setItem("username", name)
 }
 function getToken() {

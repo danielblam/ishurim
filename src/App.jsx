@@ -11,6 +11,7 @@ import { TestsPage } from './pages/tests';
 import { VehiclesPage } from './pages/vehicles';
 import { NewApproval } from './pages/newapproval';
 import { AppProvider } from './AppContext';
+import { DepartmentsPage } from './pages/departments';
 
 export default function App() {
   return (
@@ -30,6 +31,7 @@ export default function App() {
             <Route path="/dash/institutes" element={<InstitutesPage />} />
             <Route path="/dash/tests" element={<TestsPage />} />
             <Route path="/dash/vehicles" element={<VehiclesPage />} />
+            <Route path="/dash/departments" element={<DepartmentsPage />} />
           </Route>
         </Routes>
       </BrowserRouter>

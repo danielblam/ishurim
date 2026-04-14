@@ -29,7 +29,7 @@ export function ApprovalsPage() {
             ["firstName", "שם פרטי"],
             ["lastName", "שם משפחה"],
             ["idNumber","תעודת זהות"],
-            ["department","מחלקה שולחת"],
+            ["departmentId","מחלקה שולחת"],
             ["vehicleId","כלי תחבורה","vehicles"],
             ["approverId","המאשר","approvers"],
             ["clerkId","פקיד","users"],
@@ -57,6 +57,7 @@ export function ApprovalsPage() {
         var institutes = await objectService.getObjectList("institutes", token)
         var hospitals = await objectService.getObjectList("hospitals", token)
         var users = await objectService.getObjectList("users", token)
+        var departments = await objectService.getObjectList("departments", token)
             
         setObjectData(data)
         setExtraObjectData({
@@ -65,7 +66,8 @@ export function ApprovalsPage() {
             approvers:approvers,
             institutes:institutes,
             hospitals:hospitals,
-            users:users
+            users:users,
+            departments:departments
         })
 
     }

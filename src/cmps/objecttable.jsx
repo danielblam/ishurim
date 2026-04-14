@@ -10,7 +10,7 @@ import {
 import { useTheme } from "@table-library/react-table-library/theme";
 import { getTheme } from "@table-library/react-table-library/baseline";
 
-import { useContext, useState } from 'react';
+import { useContext, useEffect, useState } from 'react';
 
 import Button from 'react-bootstrap/Button';
 import Modal from 'react-bootstrap/Modal';
@@ -40,6 +40,20 @@ export function ObjectTable({ data, objectType, objectProps, width = "50", setOb
     const [editingId, setEditingId] = useState(null)
 
     const [addInputs, setAddInputs] = useState({})
+    
+    const resetAddInputs = () => {
+        if(objectType == "institutes") {
+            setAddInputs({hospitalId:"-"})
+        }
+        else {
+            setAddInputs({})
+        }
+    }
+
+    useEffect(() => {
+        resetAddInputs()
+    },[])
+
     const [show, setShow] = useState(false);
     const handleClose = () => setShow(false);
     const handleShow = () => setShow(true);
@@ -61,14 +75,15 @@ export function ObjectTable({ data, objectType, objectProps, width = "50", setOb
         console.log(addInputs)
         if (Object.keys(addInputs).length < objectProps.columns.length) return
         for (const input of Object.values(addInputs)) {
-            if (!input) return
+            if (!input && input !== false) return
         }
+        console.log("adding/editing...")
         if (editingId) await objectService.editObject(objectType, token, addInputs)
         else {
             await objectService.addObject(objectType, token, addInputs)
         }
         setObjectData(await objectService.getObjectList(objectType, token))
-        setAddInputs({})
+        resetAddInputs()
         handleClose()
     }
 
@@ -90,8 +105,14 @@ export function ObjectTable({ data, objectType, objectProps, width = "50", setOb
         setEditingId(id)
         var objects = data.nodes
         var editing = objects.find(object => object[objectProps.id] == id)
+        if(objectType == "institutes") {
+            if(editing.hospitalId == null) editing.hospitalId = "-"
+        }
         console.log(editing)
         setAddInputs(editing)
+
+        
+
         handleShow()
     }
 
@@ -122,7 +143,7 @@ export function ObjectTable({ data, objectType, objectProps, width = "50", setOb
                                                 else {
                                                     var objects = extraObjectData[column[2]]
                                                     var value = column[0]
-                                                    return <Cell>{objects.find(object => object[value] == item[value]).name}</Cell>
+                                                    return <Cell>{objects.find(object => object[value] == item[value])?.name ?? "-"}</Cell>
                                                 }
                                             })}
                                             <Cell>
@@ -148,7 +169,7 @@ export function ObjectTable({ data, objectType, objectProps, width = "50", setOb
                 </div>
                 <button className="btn btn-primary fs-6 m-2" onClick={() => {
                     handleShow()
-                    setAddInputs({})
+                    resetAddInputs()
                     setEditingId(null)
                 }}>➕ להוסיף חדש</button>
             </div>
@@ -160,11 +181,6 @@ export function ObjectTable({ data, objectType, objectProps, width = "50", setOb
                 </Modal.Header>
                 <Modal.Body>
                     {objectProps.columns.map(column => {
-                        if (column[0] == "clerkId") {
-                            return (
-                                <></>
-                            )
-                        }
                         if (column.length == 2) {
                             return (
                                 <div className="rtl mb-2">
@@ -188,7 +204,7 @@ export function ObjectTable({ data, objectType, objectProps, width = "50", setOb
                                         onChange={handleAddChange}
                                         value={addInputs[column[0]]}
                                     >
-                                        <option value=""></option>
+                                        <option value={column[0] == "hospitalId" ? "-" : ""}></option>
                                         {extraObjectData[column[2]].map(object => {
                                             return (
                                                 <option value={object[column[0]]}>{object.name}</option>

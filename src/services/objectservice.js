@@ -20,6 +20,8 @@ async function getObjectList(type, token) {
 }
 
 async function addObject(type, token, object) {
+    object = nullify(object)
+    console.log(object)
     const request = new Request(`${url}/${type}`, {
         method: "POST",
         headers: headers(token),
@@ -30,6 +32,7 @@ async function addObject(type, token, object) {
 }
 
 async function editObject(type, token, object) {
+    object = nullify(object)
     const request = new Request(`${url}/${type}`, {
         method: "PUT",
         headers: headers(token),
@@ -56,6 +59,13 @@ async function generatePdf(token, approvalId) {
     const response = await fetch(request)
     const blob = await response.blob()
     return blob
+}
+
+function nullify(object) {
+    Object.keys(object).forEach(key => {
+        if(object[key] == "-") object[key] = null
+    })
+    return object
 }
 
 export const objectService = {

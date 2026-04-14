@@ -20,7 +20,9 @@ import { useSearchParams } from 'react-router-dom';
 
 export function ApprovalTable({ data, objectType, objectProps, width = "100", setObjectData, extraObjectData }) {
 
-    const { token, userId } = useContext(AppContext)
+    const { token } = useContext(AppContext)
+
+    console.log(data)
 
 
     // const theme = useTheme(getTheme());
@@ -28,15 +30,15 @@ export function ApprovalTable({ data, objectType, objectProps, width = "100", se
         getTheme(),
         {
             HeaderRow: `
-        background-color: #eaf5fd;
+        background-color: hsl(205, 83%, 96%);
       `,
             Row: `
         &:nth-of-type(odd) {
-          background-color: #d2e9fb;
+          background-color: hsl(206, 84%, 90%);
         }
 
         &:nth-of-type(even) {
-          background-color: #eaf5fd;
+          background-color: hsl(205, 83%, 96%);
         }
       `,
         },
@@ -46,7 +48,6 @@ export function ApprovalTable({ data, objectType, objectProps, width = "100", se
 
     const [addInputs, setAddInputs] = useState({
         approvalId: 0,
-        clerkId: Number(userId),
         note: ""
     })
     const [instituteDisabled, setInstituteDisabled] = useState(true)
@@ -68,7 +69,7 @@ export function ApprovalTable({ data, objectType, objectProps, width = "100", se
     const handleAddChange = (e) => {
         const name = e.target.name;
         const value = e.target.value;
-        if (["approverId", "clerkId", "hospitalId", "instituteId", "testId", "vehicleId"].includes(name))
+        if (["approverId", "clerkId", "hospitalId", "instituteId", "testId", "vehicleId", "departmentId"].includes(name) && value != "-")
             setAddInputs(values => ({ ...values, [name]: Number(value) }))
         else {
             setAddInputs(values => ({ ...values, [name]: value }))
@@ -81,18 +82,21 @@ export function ApprovalTable({ data, objectType, objectProps, width = "100", se
     const resetAddInputs = () => {
         setAddInputs({
             approvalId: 0,
-            clerkId: Number(userId),
             note: ""
         })
     }
 
     const handleAddNew = async () => {
+
         console.log(addInputs)
-        if (Object.keys(addInputs).length < 14) return
+        
+        if (Object.keys(addInputs).length < 15) return
         for (const input of Object.keys(addInputs)) {
             if (["approvalId", "clerkId", "note"].includes(input)) continue
             if (!addInputs[input]) return
         }
+        if(Number(addInputs.idNumber) == NaN) return
+
         console.log("Can go through")
         if (editingId) await objectService.editObject(objectType, token, addInputs)
         else {
@@ -124,6 +128,7 @@ export function ApprovalTable({ data, objectType, objectProps, width = "100", se
         var editing = approvals.find(approval => approval.approvalId == id)
         console.log(editing)
         editing.hospitalId = findObject("institutes", "instituteId", editing.instituteId).hospitalId
+        if(editing.hospitalId == null) editing.hospitalId = "-"
         setAddInputs(editing)
         handleShow()
     }
@@ -147,6 +152,7 @@ export function ApprovalTable({ data, objectType, objectProps, width = "100", se
                                         <HeaderCell>בית חולים</HeaderCell>
                                         <HeaderCell>מכון</HeaderCell>
                                         <HeaderCell>סוג בדיקה</HeaderCell>
+                                        <HeaderCell>קוד בדיקה</HeaderCell>
                                         <HeaderCell>המאשר</HeaderCell>
                                         <HeaderCell>פקיד</HeaderCell>
                                         <HeaderCell>שם החולה</HeaderCell>
@@ -161,16 +167,17 @@ export function ApprovalTable({ data, objectType, objectProps, width = "100", se
                                         }}>
                                             <Cell>{item.approvalId}</Cell>
                                             <Cell>{item.hospitalizationId}</Cell>
-                                            <Cell>{item.approvalDate.split("-").reverse().join("/")}</Cell>
+                                            <Cell>{item.date.split("-").reverse().join("/")}</Cell>
                                             <Cell>{(() => {
                                                 var hospitalId = findObject("institutes", "instituteId", item.instituteId).hospitalId
                                                 var hospital = findObject("hospitals", "hospitalId", hospitalId)
-                                                return hospital.name
+                                                return hospital?.name ?? "-"
                                             })()}</Cell>
                                             <Cell>{findObject("institutes", "instituteId", item.instituteId).name}</Cell>
                                             <Cell>{findObject("tests", "testId", item.testId).name}</Cell>
+                                            <Cell>{item.testCode ?? "-"}</Cell>
                                             <Cell>{findObject("approvers", "approverId", item.approverId).fullName}</Cell>
-                                            <Cell>{findObject("users", "userId", item.clerkId).fullName}</Cell>
+                                            <Cell>{item.clerk}</Cell>
                                             <Cell>{`${item.firstName} ${item.lastName}`}</Cell>
                                             <Cell>{item.idNumber}</Cell>
                                             <Cell>
@@ -201,7 +208,7 @@ export function ApprovalTable({ data, objectType, objectProps, width = "100", se
                 }}>➕ להוסיף חדש</button>
             </div>
 
-            <Modal show={show} onHide={handleClose}>
+            <Modal show={show} onHide={handleClose} dialogClassName='extra-medium'>
                 <Modal.Header closeButton className="rtl">
                     <Modal.Title>{`הוספת ${objectProps.nameHebrew}`}</Modal.Title>
                 </Modal.Header>
@@ -225,14 +232,21 @@ export function ApprovalTable({ data, objectType, objectProps, width = "100", se
                     </div>
                     {/* testId, approvalDate */}
                     <div className="row">
-                        <div className="rtl mb-2 col-6">
+                        <div className="rtl mb-2 col-4">
                             <label>תאריך</label>
                             <input type="date" className="form-control"
-                                name="approvalDate" onChange={handleAddChange}
-                                value={addInputs.approvalDate}
+                                name="date" onChange={handleAddChange}
+                                value={addInputs.date}
                             />
                         </div>
-                        <div className="rtl mb-2 col-6">
+                        <div className="rtl mb-2 col-4">
+                            <label>קוד בדיקה</label>
+                            <input className="form-control"
+                                name="testCode" onChange={handleAddChange}
+                                value={addInputs.testCode}
+                            />
+                        </div>
+                        <div className="rtl mb-2 col-4">
                             <label>סוג בדיקה</label>
                             <select className="form-control"
                                 name="testId" onChange={handleAddChange}
@@ -289,19 +303,26 @@ export function ApprovalTable({ data, objectType, objectProps, width = "100", se
                         </div>
                         <div className="rtl mb-2 col-6">
                             <label>מחלקה שולחת</label>
-                            <input className="form-control"
-                                name="department" onChange={handleAddChange}
-                                value={addInputs.department}
-                            />
+                            <select className="form-control"
+                                name="departmentId" onChange={handleAddChange}
+                                value={addInputs.departmentId}
+                            >
+                                <option value=""></option>
+                                {extraObjectData.departments.map(object => {
+                                    return (
+                                        <option value={object.departmentId}>{object.name}</option>
+                                    )
+                                })}
+                            </select>
                         </div>
                     </div>
                     {/* approver, clerk */}
                     <div className="row">
                         <div className="rtl mb-2 col-6">
                             <label>פקיד</label>
-                            <input className="form-control" disabled
-                                name="clerkId" onChange={handleAddChange}
-                                value={extraObjectData.users.find(user => user.userId == userId).fullName}
+                            <input className="form-control"
+                                name="clerk" onChange={handleAddChange}
+                                value={addInputs.clerk}
                             />
                         </div>
                         <div className="rtl mb-2 col-6">
@@ -323,12 +344,12 @@ export function ApprovalTable({ data, objectType, objectProps, width = "100", se
                     <div className="row">
                         <div className="rtl mb-2 col-6">
                             <label>מכון</label>
-                            <select className="form-control" disabled={instituteDisabled}
+                            <select className="form-control"
                                 name="instituteId" onChange={handleAddChange}
                                 value={addInputs.instituteId}
                             >
                                 <option value=""></option>
-                                {extraObjectData.institutes.filter(inst => inst.hospitalId == addInputs.hospitalId).map(object => {
+                                {extraObjectData.institutes.filter(inst => (inst.hospitalId ?? "-") == addInputs.hospitalId).map(object => {
                                     return (
                                         <option value={object.instituteId}>{object.name}</option>
                                     )
@@ -341,7 +362,7 @@ export function ApprovalTable({ data, objectType, objectProps, width = "100", se
                                 name="hospitalId" onChange={handleAddChange}
                                 value={addInputs.hospitalId}
                             >
-                                <option value=""></option>
+                                <option value="-"></option>
                                 {extraObjectData.hospitals.map(object => {
                                     return (
                                         <option value={object.hospitalId}>{object.name}</option>
