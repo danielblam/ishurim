@@ -10,9 +10,12 @@ export const AppProvider = ({ children }) => {
   const [username, setUsername] = useState(() => {
     return localStorage.getItem("username") || null;
   })
+  const [role, setRole] = useState(() => {
+    return localStorage.getItem("role") || null;
+  })
 
   return (
-    <AppContext.Provider value={{ token, setToken, username, setUsername}}>
+    <AppContext.Provider value={{ token, setToken, username, setUsername, role, setRole}}>
       {children}
     </AppContext.Provider>
   );

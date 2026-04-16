@@ -40,10 +40,10 @@ export function ObjectTable({ data, objectType, objectProps, width = "50", setOb
     const [editingId, setEditingId] = useState(null)
 
     const [addInputs, setAddInputs] = useState({})
-    
+
     const resetAddInputs = () => {
-        if(objectType == "institutes") {
-            setAddInputs({hospitalId:"-"})
+        if (objectType == "institutes") {
+            setAddInputs({ hospitalId: "-" })
         }
         else {
             setAddInputs({})
@@ -52,7 +52,7 @@ export function ObjectTable({ data, objectType, objectProps, width = "50", setOb
 
     useEffect(() => {
         resetAddInputs()
-    },[])
+    }, [])
 
     const [show, setShow] = useState(false);
     const handleClose = () => setShow(false);
@@ -70,7 +70,8 @@ export function ObjectTable({ data, objectType, objectProps, width = "50", setOb
         setAddInputs(values => ({ ...values, [name]: value }))
     }
 
-    const { token } = useContext(AppContext)
+    const { token, role } = useContext(AppContext)
+    const extraPerms = role == -1;
 
     const handleAddNew = async () => {
         console.log(addInputs)
@@ -106,13 +107,13 @@ export function ObjectTable({ data, objectType, objectProps, width = "50", setOb
         setEditingId(id)
         var objects = data.nodes
         var editing = objects.find(object => object[objectProps.id] == id)
-        if(objectType == "institutes") {
-            if(editing.hospitalId == null) editing.hospitalId = "-"
+        if (objectType == "institutes") {
+            if (editing.hospitalId == null) editing.hospitalId = "-"
         }
         console.log(editing)
         setAddInputs(editing)
 
-        
+
 
         handleShow()
     }
@@ -139,7 +140,7 @@ export function ObjectTable({ data, objectType, objectProps, width = "50", setOb
                                             {objectProps.columns.map(column => {
                                                 if (column.length == 2) {
                                                     var value = column[0]
-                                                    if(typeof item[value] === "boolean") {
+                                                    if (typeof item[value] === "boolean") {
                                                         return <Cell>{item[value] ? "✔️" : "-"}</Cell>
                                                     }
                                                     else return <Cell>{item[value]}</Cell>
@@ -151,17 +152,14 @@ export function ObjectTable({ data, objectType, objectProps, width = "50", setOb
                                                 }
                                             })}
                                             <Cell>
-                                                <button className="btn p-0" onClick={() => {
-                                                    setDeletingId(item[objectProps.id])
-                                                    handleShowDelete()
-                                                }}>❌</button>
-                                                <button className="btn p-0" onClick={() => [
-                                                    startEditing(item[objectProps.id])
-                                                ]}>✏️</button>
-                                                {objectType != "approvals" ? <></> :
-                                                    <button className="btn p-0" onClick={() => {
-                                                        showPdf(item[objectProps.id])
-                                                    }}>📄</button>
+                                                {extraPerms ?
+                                                <><button className="btn p-0" onClick={() => {
+                                                        setDeletingId(item[objectProps.id]);
+                                                        handleShowDelete();
+                                                    } }>❌</button><button className="btn p-0" onClick={() => [
+                                                        startEditing(item[objectProps.id])
+                                                    ]}>✏️</button></>
+                                                    : <></>
                                                 }
                                             </Cell>
                                         </Row>
@@ -171,11 +169,14 @@ export function ObjectTable({ data, objectType, objectProps, width = "50", setOb
                         )}
                     </Table>
                 </div>
-                <button className="btn btn-primary fs-6 m-2" onClick={() => {
-                    handleShow()
-                    resetAddInputs()
-                    setEditingId(null)
-                }}>➕ להוסיף חדש</button>
+                {extraPerms ?
+                    <button className="btn btn-primary fs-6 m-2" onClick={() => {
+                        handleShow()
+                        resetAddInputs()
+                        setEditingId(null)
+                    }}>➕ להוסיף חדש</button>
+                    : <></>
+                }
             </div>
 
             <Modal show={show} onHide={handleClose}>

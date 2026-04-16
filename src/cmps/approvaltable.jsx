@@ -20,7 +20,8 @@ import { useSearchParams } from 'react-router-dom';
 
 export function ApprovalTable({ data, objectType, objectProps, width = "100", setObjectData, extraObjectData }) {
 
-    const { token } = useContext(AppContext)
+    const { token, role } = useContext(AppContext)
+    const extraPerms = role == -1;
 
     const requiredFields = [
         ["hospitalizationId", "מספר אשפוז"],
@@ -109,7 +110,7 @@ export function ApprovalTable({ data, objectType, objectProps, width = "100", se
         console.log(addInputs)
 
         var missingFields = requiredFields.filter(field => !addInputs[field[0]]).map(field => field[1])
-        if(missingFields.length > 0) setFailText(`חסר: ${missingFields.join(", ")}.`)
+        if (missingFields.length > 0) setFailText(`חסר: ${missingFields.join(", ")}.`)
 
         if (Object.keys(addInputs).length < 15) return
         for (const input of Object.keys(addInputs)) {
@@ -202,13 +203,15 @@ export function ApprovalTable({ data, objectType, objectProps, width = "100", se
                                             <Cell>{`${item.firstName} ${item.lastName}`}</Cell>
                                             <Cell>{item.idNumber}</Cell>
                                             <Cell>
-                                                <button className="btn p-0" onClick={() => {
-                                                    setDeletingId(item[objectProps.id])
-                                                    handleShowDelete()
-                                                }}>❌</button>
-                                                <button className="btn p-0" onClick={() => [
-                                                    startEditing(item[objectProps.id])
-                                                ]}>✏️</button>
+                                                {extraPerms ?
+                                                    <><button className="btn p-0" onClick={() => {
+                                                        setDeletingId(item[objectProps.id]);
+                                                        handleShowDelete();
+                                                    } }>❌</button><button className="btn p-0" onClick={() => [
+                                                        startEditing(item[objectProps.id])
+                                                    ]}>✏️</button></>
+                                                    : <></>
+                                                }
                                                 {objectType != "approvals" ? <></> :
                                                     <button className="btn p-0" onClick={() => {
                                                         showPdf(item[objectProps.id])
