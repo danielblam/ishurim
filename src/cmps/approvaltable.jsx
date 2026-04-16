@@ -22,6 +22,22 @@ export function ApprovalTable({ data, objectType, objectProps, width = "100", se
 
     const { token } = useContext(AppContext)
 
+    const requiredFields = [
+        ["hospitalizationId", "מספר אשפוז"],
+        ["testId", "סוג בדיקה"],
+        ["testCode", "קוד בדיקה"],
+        ["date", "תאריך"],
+        ["firstName", "שם פרטי"],
+        ["lastName", "שם משפחה"],
+        ["idNumber", "תעודת זהות"],
+        ["departmentId", "מחלקה"],
+        ["vehicleId", "כלי תחבורה"],
+        ["approverId", "מאשר"],
+        ["clerk", "פקיד"],
+        ["instituteId", "מכון"]
+    ]
+    var [failText, setFailText] = useState("")
+
     console.log(data)
 
 
@@ -82,20 +98,25 @@ export function ApprovalTable({ data, objectType, objectProps, width = "100", se
     const resetAddInputs = () => {
         setAddInputs({
             approvalId: 0,
+            hospitalId: "-",
             note: ""
         })
+        setFailText("")
     }
 
     const handleAddNew = async () => {
 
         console.log(addInputs)
-        
+
+        var missingFields = requiredFields.filter(field => !addInputs[field[0]]).map(field => field[1])
+        if(missingFields.length > 0) setFailText(`חסר: ${missingFields.join(", ")}.`)
+
         if (Object.keys(addInputs).length < 15) return
         for (const input of Object.keys(addInputs)) {
             if (["approvalId", "clerkId", "note"].includes(input)) continue
             if (!addInputs[input]) return
         }
-        if(Number(addInputs.idNumber) == NaN) return
+        if (Number(addInputs.idNumber) == NaN) return
 
         console.log("Can go through")
         if (editingId) await objectService.editObject(objectType, token, addInputs)
@@ -128,7 +149,7 @@ export function ApprovalTable({ data, objectType, objectProps, width = "100", se
         var editing = approvals.find(approval => approval.approvalId == id)
         console.log(editing)
         editing.hospitalId = findObject("institutes", "instituteId", editing.instituteId).hospitalId
-        if(editing.hospitalId == null) editing.hospitalId = "-"
+        if (editing.hospitalId == null) editing.hospitalId = "-"
         setAddInputs(editing)
         handleShow()
     }
@@ -382,6 +403,7 @@ export function ApprovalTable({ data, objectType, objectProps, width = "100", se
 
                 </Modal.Body>
                 <Modal.Footer>
+                    <div className="text-danger px-2 rtl">{failText}</div>
                     <Button variant="primary" onClick={handleAddNew}>
                         הוספה
                     </Button>
