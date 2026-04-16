@@ -23,7 +23,8 @@ export function ApproversPage() {
         nameHebrew:"מאשר",
         columns:[
             ["name","שם"],
-            ["fullName","שם מלא"]
+            ["fullName","שם מלא"],
+            ["allowed","מורשה"]
         ]
     }
 

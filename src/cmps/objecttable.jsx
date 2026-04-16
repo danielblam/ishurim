@@ -18,7 +18,7 @@ import { objectService } from '../services/objectservice';
 import { AppContext } from "../AppContext"
 
 export function ObjectTable({ data, objectType, objectProps, width = "50", setObjectData, extraObjectData }) {
-
+    console.log(data)
     const theme = useTheme([
         getTheme(),
         {
@@ -65,7 +65,8 @@ export function ObjectTable({ data, objectType, objectProps, width = "50", setOb
 
     const handleAddChange = (e) => {
         const name = e.target.name;
-        const value = e.target.value;
+        // const value = e.target.value;
+        const value = e.target.type === 'checkbox' ? e.target.checked : e.target.value;
         setAddInputs(values => ({ ...values, [name]: value }))
     }
 
@@ -138,7 +139,10 @@ export function ObjectTable({ data, objectType, objectProps, width = "50", setOb
                                             {objectProps.columns.map(column => {
                                                 if (column.length == 2) {
                                                     var value = column[0]
-                                                    return <Cell>{item[value]}</Cell>
+                                                    if(typeof item[value] === "boolean") {
+                                                        return <Cell>{item[value] ? "✔️" : "-"}</Cell>
+                                                    }
+                                                    else return <Cell>{item[value]}</Cell>
                                                 }
                                                 else {
                                                     var objects = extraObjectData[column[2]]
@@ -181,7 +185,21 @@ export function ObjectTable({ data, objectType, objectProps, width = "50", setOb
                 </Modal.Header>
                 <Modal.Body>
                     {objectProps.columns.map(column => {
-                        if (column.length == 2) {
+                        if (column[0] == "allowed") {
+                            return (
+                                <div className='rtl mb-2 pt-1 d-flex align-items-center'>
+                                    <input
+                                        className="form-check-input ms-2"
+                                        type="checkbox"
+                                        name={column[0]}
+                                        onChange={handleAddChange}
+                                        checked={addInputs[column[0]]}
+                                    />
+                                    <label>{column[1]}</label>
+                                </div>
+                            )
+                        }
+                        else if (column.length == 2) {
                             return (
                                 <div className="rtl mb-2">
                                     <label>{column[1]}</label>

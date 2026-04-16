@@ -353,7 +353,7 @@ export function ApprovalTable({ data, objectType, objectProps, width = "100", se
                                 value={addInputs.approverId}
                             >
                                 <option value=""></option>
-                                {extraObjectData.approvers.map(object => {
+                                {extraObjectData.approvers.filter(approver => approver.allowed).map(object => {
                                     return (
                                         <option value={object.approverId}>{object.fullName}</option>
                                     )
