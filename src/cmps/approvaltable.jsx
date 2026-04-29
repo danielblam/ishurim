@@ -97,11 +97,16 @@ export function ApprovalTable({ data, objectType, objectProps, width = "100", se
     }
 
     const resetAddInputs = () => {
+        date = new Date()
+        dateYear = currentDate.getFullYear()
+        dateMonth = String(date.getMonth() + 1).padStart(2, '0')
+        dateDay = String(date.getDate()).padStart(2, '0');
         setAddInputs({
             approvalId: 0,
             hospitalId: "-",
             note: "",
-            clerk: username
+            clerk: username,
+            date: `${dateYear}-${dateMonth}-${dateDay}`
         })
         setFailText("")
     }
@@ -190,7 +195,7 @@ export function ApprovalTable({ data, objectType, objectProps, width = "100", se
                                         }}>
                                             <Cell>{item.approvalId}</Cell>
                                             <Cell>{item.hospitalizationId}</Cell>
-                                            <Cell>{item.date.split("-").reverse().join("/")}</Cell>
+                                            <Cell>{item.date?.split("-")?.reverse()?.join("/") ?? "-"}</Cell>
                                             <Cell>{(() => {
                                                 var hospitalId = findObject("institutes", "instituteId", item.instituteId).hospitalId
                                                 var hospital = findObject("hospitals", "hospitalId", hospitalId)
@@ -259,7 +264,7 @@ export function ApprovalTable({ data, objectType, objectProps, width = "100", se
                     <div className="row">
                         <div className="rtl mb-2 col-4">
                             <label>תאריך</label>
-                            <input type="date" className="form-control"
+                            <input type="date" className="form-control" disabled
                                 name="date" onChange={handleAddChange}
                                 value={addInputs.date}
                             />
