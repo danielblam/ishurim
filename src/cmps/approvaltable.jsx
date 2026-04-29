@@ -97,10 +97,10 @@ export function ApprovalTable({ data, objectType, objectProps, width = "100", se
     }
 
     const resetAddInputs = () => {
-        date = new Date()
-        dateYear = currentDate.getFullYear()
-        dateMonth = String(date.getMonth() + 1).padStart(2, '0')
-        dateDay = String(date.getDate()).padStart(2, '0');
+        let date = new Date()
+        let dateYear = date.getFullYear()
+        let dateMonth = String(date.getMonth() + 1).padStart(2, '0')
+        let dateDay = String(date.getDate()).padStart(2, '0');
         setAddInputs({
             approvalId: 0,
             hospitalId: "-",
