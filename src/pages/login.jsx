@@ -1,6 +1,6 @@
 import { Button } from "bootstrap/dist/js/bootstrap.bundle.min";
 import { Link, useNavigate } from "react-router-dom";
-import { useContext, useState } from "react";
+import { useContext, useEffect, useState } from "react";
 import { authService } from "../services/authservice";
 import { AppContext } from "../AppContext";
 
@@ -21,6 +21,27 @@ export function LoginPage() {
         setInputs(values => ({ ...values, [name]: value }))
     }
 
+    useEffect(() => {
+        windowsLogIn()
+    }, [])
+
+    const windowsLogIn = async () => {
+        var result = await authService.windowsLogin()
+        if (typeof result == "number") {
+            switch(result) {
+                case 401:
+                    setFailText("כניסה אוטומטית נכשלה.")
+                    return
+            }
+        }
+        setFailText("")
+        authService.saveToken(result.token, result.name, result.role)
+        setToken(result.token)
+        setUsername(result.name)
+        setRole(result.role)
+        navigate("/dash", { state: { refresh: true } })
+    }
+
     const logIn = async () => {
         if(!inputs.name || !inputs.password) {
             setFailText("חסר שם ו/או סיסמה.")
@@ -38,7 +59,6 @@ export function LoginPage() {
             }
         }
         setFailText("")
-        console.log(result.token)
         authService.saveToken(result.token, inputs.name, result.role)
         setToken(result.token)
         setUsername(inputs.name)

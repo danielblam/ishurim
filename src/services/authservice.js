@@ -1,8 +1,22 @@
 import { url } from "./utils"
 
 export const authService = {
-    login,
+    login, windowsLogin,
     saveToken, getToken
+}
+
+async function windowsLogin() {
+    const request = new Request(`${url}/auth/windowslogin`, {
+        method: "GET",
+        headers:
+        {
+            'Content-Type': 'application/json'
+        },
+        credentials: "include"
+    })
+    const response = await fetch(request)
+    if(!response.ok) return response.status
+    return await response.json()
 }
 
 async function login(inputs) {
@@ -12,7 +26,6 @@ async function login(inputs) {
             "username":name,
             "password":password
         }
-    console.log(reqBody)
     const request = new Request(`${url}/auth/login`, {
         method: "POST",
         headers:

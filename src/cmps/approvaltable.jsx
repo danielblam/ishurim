@@ -20,7 +20,7 @@ import { useSearchParams } from 'react-router-dom';
 
 export function ApprovalTable({ data, objectType, objectProps, width = "100", setObjectData, extraObjectData }) {
 
-    const { token, role } = useContext(AppContext)
+    const { token, username, role } = useContext(AppContext)
     const extraPerms = role == -1;
 
     const requiredFields = [
@@ -100,7 +100,8 @@ export function ApprovalTable({ data, objectType, objectProps, width = "100", se
         setAddInputs({
             approvalId: 0,
             hospitalId: "-",
-            note: ""
+            note: "",
+            clerk: username
         })
         setFailText("")
     }
@@ -344,7 +345,7 @@ export function ApprovalTable({ data, objectType, objectProps, width = "100", se
                     <div className="row">
                         <div className="rtl mb-2 col-6">
                             <label>פקיד</label>
-                            <input className="form-control"
+                            <input className="form-control" disabled
                                 name="clerk" onChange={handleAddChange}
                                 value={addInputs.clerk}
                             />

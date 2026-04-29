@@ -6,7 +6,7 @@ import 'bootstrap/dist/js/bootstrap.bundle.min.js';
 import './main.css'
 import { initUrl } from './services/utils.js';
 
-initUrl()
+await initUrl()
 
 createRoot(document.getElementById('root')).render(
   <StrictMode>
