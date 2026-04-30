@@ -12,6 +12,7 @@ import { VehiclesPage } from './pages/vehicles';
 import { NewApproval } from './pages/newapproval';
 import { AppProvider } from './AppContext';
 import { DepartmentsPage } from './pages/departments';
+import { FailedWindowsLogin } from './pages/failedwindowslogin';
 
 export default function App() {
   return (
@@ -20,6 +21,7 @@ export default function App() {
         <Routes>
           <Route element={<AuthLayout />}>
             <Route path="/" element={<LoginPage />} />
+            <Route path="/fail" element={<FailedWindowsLogin />} />
           </Route>
 
           <Route element={<MainLayout />}>

@@ -30,7 +30,8 @@ export function LoginPage() {
         if (typeof result == "number") {
             switch(result) {
                 case 401:
-                    setFailText("כניסה אוטומטית נכשלה.")
+                    navigate("/fail", { state: { refresh: true } })
+                    // setFailText("כניסה אוטומטית נכשלה.")
                     return
             }
         }
