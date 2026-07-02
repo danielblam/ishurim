@@ -70,7 +70,7 @@ export function LoginPage() {
     return (
         <div className="login-page-container fs-5 bg-light">
             <div className="login-container shadow-lg bg-white">
-                <div>
+                {/* <div>
                     <h3>כניסה למערכת אישורים</h3>
                 </div>
                 <div className="mt-4 form-row">
@@ -86,7 +86,8 @@ export function LoginPage() {
                 <div className="mb-3 mt-3 login-fail text-danger rtl">{failText}</div>
                 <div>
                     <button onClick={() => logIn()} className="btn btn-primary fw-bold">כניסה</button>
-                </div>
+                </div> */}
+                <div className="rtl">מנסה להתחבר...</div>
             </div>
         </div>
     )
