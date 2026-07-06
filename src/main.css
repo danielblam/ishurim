@@ -5,6 +5,8 @@
 @import './style/layouts/mainlayout.css';
 
 @import './style/pages/login.css';
+@import './style/pages/approvals.css';
 
 @import './style/cmps/objecttable.css';
 @import './style/cmps/approvaltable.css';
+@import './style/cmps/filterbar.css';

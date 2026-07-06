@@ -23,6 +23,10 @@ export function ApprovalTable({ data, objectType, objectProps, width = "100", se
     const { token, username, role } = useContext(AppContext)
     const extraPerms = role == -1;
 
+    // const [filteredData, setFilteredData] = useState(data)
+    // const [extraFilterType, setExtraFilterType] = useState("")
+    // const [extraFilterText, setExtraFilterText] = useState("")
+
     const requiredFields = [
         ["hospitalizationId", "מספר אשפוז"],
         ["testId", "סוג בדיקה"],
@@ -39,10 +43,6 @@ export function ApprovalTable({ data, objectType, objectProps, width = "100", se
     ]
     var [failText, setFailText] = useState("")
 
-    console.log(data)
-
-
-    // const theme = useTheme(getTheme());
     const theme = useTheme([
         getTheme(),
         {
@@ -106,7 +106,8 @@ export function ApprovalTable({ data, objectType, objectProps, width = "100", se
             hospitalId: "-",
             note: "",
             clerk: username,
-            date: `${dateYear}-${dateMonth}-${dateDay}`
+            date: `${dateYear}-${dateMonth}-${dateDay}`,
+            testCode: "*"
         })
         setFailText("")
     }
@@ -165,9 +166,18 @@ export function ApprovalTable({ data, objectType, objectProps, width = "100", se
         return extraObjectData[objectName].find(object => object[objectIdName] == objectId)
     }
 
+    useEffect(() => {
+
+    },[data])
+
     return (
         <>
             <div className="rtl">
+                <button className="btn btn-primary fs-6 m-2" onClick={() => {
+                    handleShow()
+                    resetAddInputs()
+                    setEditingId(null)
+                }}>➕ להוסיף חדש</button>
                 <div className={`rtl-table w-${width}`}>
                     <Table data={data} theme={theme} className="">
                         {(tableList) => (
@@ -180,7 +190,7 @@ export function ApprovalTable({ data, objectType, objectProps, width = "100", se
                                         <HeaderCell>בית חולים</HeaderCell>
                                         <HeaderCell>מכון</HeaderCell>
                                         <HeaderCell>סוג בדיקה</HeaderCell>
-                                        <HeaderCell>קוד בדיקה</HeaderCell>
+                                        {/* <HeaderCell>קוד בדיקה</HeaderCell> */}
                                         <HeaderCell>המאשר</HeaderCell>
                                         <HeaderCell>פקיד</HeaderCell>
                                         <HeaderCell>שם החולה</HeaderCell>
@@ -203,7 +213,7 @@ export function ApprovalTable({ data, objectType, objectProps, width = "100", se
                                             })()}</Cell>
                                             <Cell>{findObject("institutes", "instituteId", item.instituteId).name}</Cell>
                                             <Cell>{findObject("tests", "testId", item.testId).name}</Cell>
-                                            <Cell>{item.testCode ?? "-"}</Cell>
+                                            {/* <Cell>{item.testCode ?? "-"}</Cell> */}
                                             <Cell>{findObject("approvers", "approverId", item.approverId).fullName}</Cell>
                                             <Cell>{item.clerk}</Cell>
                                             <Cell>{`${item.firstName} ${item.lastName}`}</Cell>
@@ -231,11 +241,6 @@ export function ApprovalTable({ data, objectType, objectProps, width = "100", se
                         )}
                     </Table>
                 </div>
-                <button className="btn btn-primary fs-6 m-2" onClick={() => {
-                    handleShow()
-                    resetAddInputs()
-                    setEditingId(null)
-                }}>➕ להוסיף חדש</button>
             </div>
 
             <Modal show={show} onHide={handleClose} dialogClassName='extra-medium'>
@@ -262,21 +267,14 @@ export function ApprovalTable({ data, objectType, objectProps, width = "100", se
                     </div>
                     {/* testId, approvalDate */}
                     <div className="row">
-                        <div className="rtl mb-2 col-4">
+                        <div className="rtl mb-2 col-6">
                             <label>תאריך</label>
                             <input type="date" className="form-control" disabled
                                 name="date" onChange={handleAddChange}
                                 value={addInputs.date}
                             />
                         </div>
-                        <div className="rtl mb-2 col-4">
-                            <label>קוד בדיקה</label>
-                            <input className="form-control"
-                                name="testCode" onChange={handleAddChange}
-                                value={addInputs.testCode}
-                            />
-                        </div>
-                        <div className="rtl mb-2 col-4">
+                        <div className="rtl mb-2 col-6">
                             <label>סוג בדיקה</label>
                             <select className="form-control"
                                 name="testId" onChange={handleAddChange}
