@@ -17,6 +17,7 @@ import Modal from 'react-bootstrap/Modal';
 import { objectService } from '../services/objectservice';
 import { AppContext } from "../AppContext"
 import { useSearchParams } from 'react-router-dom';
+import { ExportModal } from './exportmodal';
 
 export function ApprovalTable({ data, objectType, objectProps, width = "100", setObjectData, extraObjectData }) {
 
@@ -166,18 +167,22 @@ export function ApprovalTable({ data, objectType, objectProps, width = "100", se
         return extraObjectData[objectName].find(object => object[objectIdName] == objectId)
     }
 
-    useEffect(() => {
-
-    },[data])
+    const [showExport, setShowExport] = useState(false)
+    const handleExportClose = () => setShowExport(false)
 
     return (
         <>
             <div className="rtl">
-                <button className="btn btn-primary fs-6 m-2" onClick={() => {
-                    handleShow()
-                    resetAddInputs()
-                    setEditingId(null)
-                }}>➕ להוסיף חדש</button>
+                <div className="button-row">
+                    <button className="btn btn-primary fs-6 m-2" onClick={() => {
+                        handleShow()
+                        resetAddInputs()
+                        setEditingId(null)
+                    }}>➕ להוסיף חדש</button>
+                    <button className="btn btn-light export-modal-button fs-6 m-2" onClick={() => {
+                        setShowExport(true)
+                    }}><img src="/excel.png" width="24" className="ms-1"/> ייצוא דוח אישורים</button>
+                </div>
                 <div className={`rtl-table w-${width}`}>
                     <Table data={data} theme={theme} className="">
                         {(tableList) => (
@@ -223,7 +228,7 @@ export function ApprovalTable({ data, objectType, objectProps, width = "100", se
                                                     <><button className="btn p-0" onClick={() => {
                                                         setDeletingId(item[objectProps.id]);
                                                         handleShowDelete();
-                                                    } }>❌</button><button className="btn p-0" onClick={() => [
+                                                    }}>❌</button><button className="btn p-0" onClick={() => [
                                                         startEditing(item[objectProps.id])
                                                     ]}>✏️</button></>
                                                     : <></>
@@ -435,6 +440,8 @@ export function ApprovalTable({ data, objectType, objectProps, width = "100", se
                     </Modal.Footer>
                 </Modal>
             }
+
+            <ExportModal show={showExport} handleClose={handleExportClose} extraObjectData={extraObjectData}/>
         </>
     )
 }

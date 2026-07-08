@@ -1,3 +1,13 @@
 .extra-medium {
     max-width: 600px;
 }
+
+.button-row {
+    display:flex;
+}
+
+.export-modal-button {
+    background-color: rgb(233, 233, 233);
+    border-color:rgb(233,233,233);
+    border-width: 2px;
+}
