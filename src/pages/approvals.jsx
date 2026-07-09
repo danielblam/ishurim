@@ -103,10 +103,10 @@ export function ApprovalsPage() {
             var hospitalName = extraObjectData.hospitals.find(h => h.hospitalId == hospitalId)?.name
             if(extraFilters.hospitals && !hospitalName?.includes(extraFilters.hospitals)) return false
 
-            var testName = extraObjectData.tests.find(t => t.testId == obj.testId).name
+            var testName = extraObjectData.tests.find(t => t.testId == obj.testId)?.name
             if(extraFilters.tests && !testName?.includes(extraFilters.tests)) return false
 
-            var approverName = extraObjectData.approvers.find(a => a.approverId == obj.approverId).fullName
+            var approverName = extraObjectData.approvers.find(a => a.approverId == obj.approverId)?.fullName
             if(extraFilters.approvers && !approverName?.includes(extraFilters.approvers)) return false
 
             return true

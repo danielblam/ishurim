@@ -151,6 +151,16 @@ export function ApprovalTable({ data, objectType, objectProps, width = "100", se
         window.open(url);
     }
 
+    const getXlsx = async (exportSettings) => {
+        const blob = await objectService.generateXlsx(token, exportSettings)
+
+        console.log(blob);
+        console.log(blob instanceof Blob);
+
+        const url = URL.createObjectURL(blob);
+        window.open(url);
+    }
+
     const startEditing = (id) => {
         setEditingId(id)
         setInstituteDisabled(false)
@@ -181,7 +191,7 @@ export function ApprovalTable({ data, objectType, objectProps, width = "100", se
                     }}>➕ להוסיף חדש</button>
                     <button className="btn btn-light export-modal-button fs-6 m-2" onClick={() => {
                         setShowExport(true)
-                    }}><img src="/excel.png" width="24" className="ms-1"/> ייצוא דוח אישורים</button>
+                    }}><img src="/excel.png" width="24" className="ms-1" /> ייצוא דוח אישורים</button>
                 </div>
                 <div className={`rtl-table w-${width}`}>
                     <Table data={data} theme={theme} className="">
@@ -216,10 +226,10 @@ export function ApprovalTable({ data, objectType, objectProps, width = "100", se
                                                 var hospital = findObject("hospitals", "hospitalId", hospitalId)
                                                 return hospital?.name ?? "-"
                                             })()}</Cell>
-                                            <Cell>{findObject("institutes", "instituteId", item.instituteId).name}</Cell>
-                                            <Cell>{findObject("tests", "testId", item.testId).name}</Cell>
+                                            <Cell>{findObject("institutes", "instituteId", item.instituteId)?.name}</Cell>
+                                            <Cell>{findObject("tests", "testId", item.testId)?.name}</Cell>
                                             {/* <Cell>{item.testCode ?? "-"}</Cell> */}
-                                            <Cell>{findObject("approvers", "approverId", item.approverId).fullName}</Cell>
+                                            <Cell>{findObject("approvers", "approverId", item.approverId)?.fullName}</Cell>
                                             <Cell>{item.clerk}</Cell>
                                             <Cell>{`${item.firstName} ${item.lastName}`}</Cell>
                                             <Cell>{item.idNumber}</Cell>
@@ -441,7 +451,9 @@ export function ApprovalTable({ data, objectType, objectProps, width = "100", se
                 </Modal>
             }
 
-            <ExportModal show={showExport} handleClose={handleExportClose} extraObjectData={extraObjectData}/>
+            <ExportModal show={showExport} handleClose={handleExportClose} extraObjectData={extraObjectData}
+                getXlsx={getXlsx}
+            />
         </>
     )
 }

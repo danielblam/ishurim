@@ -61,6 +61,17 @@ async function generatePdf(token, approvalId) {
     return blob
 }
 
+async function generateXlsx(token, exportSettings) {
+    const request = new Request(`${url}/approvals/xlsx`, {
+        method: "POST",
+        headers: headers(token),
+        body: JSON.stringify(exportSettings)
+    })
+    const response = await fetch(request)
+    const blob = await response.blob()
+    return blob
+}
+
 function nullify(object) {
     Object.keys(object).forEach(key => {
         if(object[key] == "-") object[key] = null
@@ -73,5 +84,6 @@ export const objectService = {
     addObject,
     editObject,
     deleteObject,
-    generatePdf
+    generatePdf,
+    generateXlsx
 }

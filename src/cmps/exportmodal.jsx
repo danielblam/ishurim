@@ -2,7 +2,7 @@ import { useState } from 'react';
 import Modal from 'react-bootstrap/Modal';
 import Select from 'react-select';
 
-export function ExportModal({ show, handleClose, extraObjectData }) {
+export function ExportModal({ show, handleClose, extraObjectData, getXlsx }) {
 
     const maxYear = new Date().getFullYear() + 10
     const hebrewMonths = ["ינואר", "פברואר", "מרץ", "אפריל", "מאי", "יוני", "יולי", "אוגוסט", "ספטמבר", "אוקטובר", "נובמבר", "דצמבר"]
@@ -27,10 +27,10 @@ export function ExportModal({ show, handleClose, extraObjectData }) {
             "instituteIds": [],
             "hospitalIds": [],
             // by department,
-            "byDepartment": "all",
+            "byDepartments": "all",
             "departmentIds": [],
             // by test type
-            "byTest": "all",
+            "byTests": "all",
             "testIds": []
         }
     }
@@ -58,6 +58,10 @@ export function ExportModal({ show, handleClose, extraObjectData }) {
 
     const [selectedHospitals, setSelectedHospitals] = useState([])
     const [selectedInstitutes, setSelectedInstitutes] = useState([])
+
+    const handleFinish = () => {
+        getXlsx(exportSettings)
+    }
 
     return (
         <Modal show={show} onHide={handleClose} dialogClassName='extra-medium'>
@@ -196,24 +200,24 @@ export function ExportModal({ show, handleClose, extraObjectData }) {
                         </div>
                         <div className="rtl col-3">
                             <input
-                                type="radio" name="byInstitutesOrHospitals" value="hospital"
+                                type="radio" name="byInstitutesOrHospitals" value="hospitals"
                                 className="ms-2 form-check-input p-2"
-                                checked={exportSettings.byInstitutesOrHospitals == "hospital"}
+                                checked={exportSettings.byInstitutesOrHospitals == "hospitals"}
                                 onChange={handleChange}
                             />
                             <label>לפי בתי חולים</label>
                         </div>
                         <div className="rtl col-3">
                             <input
-                                type="radio" name="byInstitutesOrHospitals" value="institute"
+                                type="radio" name="byInstitutesOrHospitals" value="institutes"
                                 className="ms-2 form-check-input p-2"
-                                checked={exportSettings.byInstitutesOrHospitals == "institute"}
+                                checked={exportSettings.byInstitutesOrHospitals == "institutes"}
                                 onChange={handleChange}
                             />
                             <label>לפי מכונים</label>
                         </div>
                     </div>
-                    {exportSettings.byInstitutesOrHospitals == "hospital" ?
+                    {exportSettings.byInstitutesOrHospitals == "hospitals" ?
                         <div>
                             <div>
                                 <label className="fw-bold mt-2">בחירת בתי חולים</label>
@@ -234,7 +238,7 @@ export function ExportModal({ show, handleClose, extraObjectData }) {
                                 />
                             </div>
                         </div>
-                        : exportSettings.byInstitutesOrHospitals == "institute" ?
+                        : exportSettings.byInstitutesOrHospitals == "institutes" ?
                             <div>
                                 <div>
                                     <label className="fw-bold mt-2">בחירת מכונים</label>
@@ -263,24 +267,24 @@ export function ExportModal({ show, handleClose, extraObjectData }) {
                     <div className="row d-flex align-items-center">
                         <div className="rtl col-2">
                             <input
-                                type="radio" name="byDepartment" value="all"
+                                type="radio" name="byDepartments" value="all"
                                 className="ms-2 form-check-input p-2"
-                                checked={exportSettings.byDepartment == "all"}
+                                checked={exportSettings.byDepartments == "all"}
                                 onChange={handleChange}
                             />
                             <label>הכל</label>
                         </div>
                         <div className="rtl col-4">
                             <input
-                                type="radio" name="byDepartment" value="departments"
+                                type="radio" name="byDepartments" value="departments"
                                 className="ms-2 form-check-input p-2"
-                                checked={exportSettings.byDepartment == "departments"}
+                                checked={exportSettings.byDepartments == "departments"}
                                 onChange={handleChange}
                             />
                             <label>לפי מחלקות</label>
                         </div>
                     </div>
-                    {exportSettings.byDepartment != "all" ?
+                    {exportSettings.byDepartments != "all" ?
                         <div>
                             <div>
                                 <label className="fw-bold mt-2">בחירת מחלקות</label>
@@ -305,24 +309,24 @@ export function ExportModal({ show, handleClose, extraObjectData }) {
                     <div className="row d-flex align-items-center">
                         <div className="rtl col-2">
                             <input
-                                type="radio" name="byTest" value="all"
+                                type="radio" name="byTests" value="all"
                                 className="ms-2 form-check-input p-2"
-                                checked={exportSettings.byTest == "all"}
+                                checked={exportSettings.byTests == "all"}
                                 onChange={handleChange}
                             />
                             <label>הכל</label>
                         </div>
                         <div className="rtl col-4">
                             <input
-                                type="radio" name="byTest" value="tests"
+                                type="radio" name="byTests" value="tests"
                                 className="ms-2 form-check-input p-2"
-                                checked={exportSettings.byTest == "tests"}
+                                checked={exportSettings.byTests == "tests"}
                                 onChange={handleChange}
                             />
                             <label>לפי סוגי בדיקה</label>
                         </div>
                     </div>
-                    {exportSettings.byTest != "all" ?
+                    {exportSettings.byTests != "all" ?
                         <div>
                             <div>
                                 <label className="fw-bold mt-2">בחירת סוגי בדיקות</label>
@@ -346,7 +350,9 @@ export function ExportModal({ show, handleClose, extraObjectData }) {
                 </div>
             </Modal.Body>
             <Modal.Footer>
-                <button className="btn btn-primary">
+                <button className="btn btn-primary"
+                onClick={() => handleFinish()}
+                >
                     ייצא לאקסל
                 </button>
             </Modal.Footer>

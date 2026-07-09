@@ -91,7 +91,13 @@ export function ObjectTable({ data, objectType, objectProps, width = "50", setOb
 
     const handleDelete = async () => {
         if (deletingId == null) return
-        await objectService.deleteObject(objectType, token, deletingId)
+        var status = await objectService.deleteObject(objectType, token, deletingId)
+        console.log(status)
+        if(status == 403 || status == 500) {
+            alert('לא ניתן למחוק את זה כעת.')
+            handleCloseDelete()
+            return
+        }
         // setObjectData(await objectService.getObjectList(objectType, token)) // lazy approach
         setObjectData((prevData) => prevData.filter(object => object[objectProps.id] != deletingId))
         handleCloseDelete()
