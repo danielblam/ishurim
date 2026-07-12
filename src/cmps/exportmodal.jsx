@@ -61,6 +61,7 @@ export function ExportModal({ show, handleClose, extraObjectData, getXlsx }) {
 
     const handleFinish = () => {
         getXlsx(exportSettings)
+        handleClose()
     }
 
     return (

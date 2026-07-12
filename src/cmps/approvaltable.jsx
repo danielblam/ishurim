@@ -167,7 +167,7 @@ export function ApprovalTable({ data, objectType, objectProps, width = "100", se
         var approvals = data.nodes
         var editing = approvals.find(approval => approval.approvalId == id)
         console.log(editing)
-        editing.hospitalId = findObject("institutes", "instituteId", editing.instituteId).hospitalId
+        editing.hospitalId = findObject("institutes", "instituteId", editing.instituteId)?.hospitalId
         if (editing.hospitalId == null) editing.hospitalId = "-"
         setAddInputs(editing)
         handleShow()
@@ -222,7 +222,7 @@ export function ApprovalTable({ data, objectType, objectProps, width = "100", se
                                             <Cell>{item.hospitalizationId}</Cell>
                                             <Cell>{item.date?.split("-")?.reverse()?.join("/") ?? "-"}</Cell>
                                             <Cell>{(() => {
-                                                var hospitalId = findObject("institutes", "instituteId", item.instituteId).hospitalId
+                                                var hospitalId = findObject("institutes", "instituteId", item.instituteId)?.hospitalId
                                                 var hospital = findObject("hospitals", "hospitalId", hospitalId)
                                                 return hospital?.name ?? "-"
                                             })()}</Cell>

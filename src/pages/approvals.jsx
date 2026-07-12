@@ -99,7 +99,8 @@ export function ApprovalsPage() {
             if (String(obj.hospitalizationId).includes(filterText)) return true
             return false
         }).filter(obj => { // extra filters
-            var hospitalId = extraObjectData.institutes.find(i => i.instituteId == obj.instituteId).hospitalId
+
+            var hospitalId = extraObjectData.institutes.find(i => i.instituteId == obj.instituteId)?.hospitalId
             var hospitalName = extraObjectData.hospitals.find(h => h.hospitalId == hospitalId)?.name
             if(extraFilters.hospitals && !hospitalName?.includes(extraFilters.hospitals)) return false
 
