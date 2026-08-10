@@ -10,12 +10,15 @@ import {
 import { useTheme } from "@table-library/react-table-library/theme";
 import { getTheme } from "@table-library/react-table-library/baseline";
 
+import { Virtualized } from "@table-library/react-table-library/virtualized";
+
 import { useContext, useEffect, useState } from 'react';
 
 import Button from 'react-bootstrap/Button';
 import Modal from 'react-bootstrap/Modal';
 import { objectService } from '../services/objectservice';
 import { AppContext } from "../AppContext"
+import Select from 'react-select';
 
 export function ObjectTable({ data, objectType, objectProps, width = "50", setObjectData, extraObjectData }) {
     console.log(data)
@@ -63,6 +66,15 @@ export function ObjectTable({ data, objectType, objectProps, width = "50", setOb
     const handleCloseDelete = () => setShowDelete(false)
     const handleShowDelete = () => setShowDelete(true)
 
+    const [filterText, setFilterText] = useState("")
+    const handleFilterTextChange = (e) => {
+        setFilterText(e.target.value)
+    }
+    const [filteredData, setFilteredData] = useState({ nodes: [] })
+    useEffect(() => {
+        setFilteredData({ nodes: data.nodes.filter(object => object?.name?.includes(filterText)) })
+    }, [data, filterText])
+
     const handleAddChange = (e) => {
         const name = e.target.name;
         // const value = e.target.value;
@@ -74,12 +86,12 @@ export function ObjectTable({ data, objectType, objectProps, width = "50", setOb
     const extraPerms = role == -1;
 
     const handleAddNew = async () => {
-        console.log(addInputs)
+        // console.log(addInputs)
         if (Object.keys(addInputs).length < objectProps.columns.length) return
         for (const input of Object.values(addInputs)) {
             if (!input && input !== false) return
         }
-        console.log("adding/editing...")
+        // console.log("adding/editing...")
         if (editingId) await objectService.editObject(objectType, token, addInputs)
         else {
             await objectService.addObject(objectType, token, addInputs)
@@ -93,7 +105,7 @@ export function ObjectTable({ data, objectType, objectProps, width = "50", setOb
         if (deletingId == null) return
         var status = await objectService.deleteObject(objectType, token, deletingId)
         console.log(status)
-        if(status == 403 || status == 500) {
+        if (status == 403 || status == 500) {
             alert('לא ניתן למחוק את זה כעת.')
             handleCloseDelete()
             return
@@ -116,22 +128,43 @@ export function ObjectTable({ data, objectType, objectProps, width = "50", setOb
         if (objectType == "institutes") {
             if (editing.hospitalId == null) editing.hospitalId = "-"
         }
-        console.log(editing)
+        // console.log(editing)
         setAddInputs(editing)
-
-
-
         handleShow()
     }
+
+    const hospitalOptions = extraObjectData?.hospitals ? [{ label: "-", value: "-" }, ...extraObjectData.hospitals.map(object => ({
+        value: object.hospitalId,
+        label: object.name
+    }))] : null
 
     return (
         <>
             <div className="rtl">
-                <div className={`rtl-table w-${width}`}>
-                    <Table data={data} theme={theme} className="">
+                <div className="d-flex">
+                    <div className="extra-filter m-2 ms-0">
+                        <input value={filterText} onChange={handleFilterTextChange}
+                            className="form-control filter-bar-input ms-2"
+                            placeholder="חיפוש לפי שם..."
+                        />
+                    </div>
+                    {extraPerms ?
+                        <button className="btn btn-primary fs-6 m-2 me-0" onClick={() => {
+                            handleShow()
+                            resetAddInputs()
+                            setEditingId(null)
+                        }}>➕ להוסיף חדש</button>
+                        : <></>
+                    }
+
+                </div>
+                <div className={`rtl-table w-${width} object-table`}>
+                    <Table data={filteredData} theme={theme} className="" layout={{ isDiv: true, fixedHeader: true }}>
                         {(tableList) => (
-                            <>
-                                <Header>
+                            <Virtualized
+                                tableList={tableList}
+                                rowHeight={38}
+                                header={() => (
                                     <HeaderRow>
                                         {objectProps.columns.map(column => {
                                             var value = column[1]
@@ -139,50 +172,84 @@ export function ObjectTable({ data, objectType, objectProps, width = "50", setOb
                                         })}
                                         <HeaderCell>פעולות</HeaderCell>
                                     </HeaderRow>
-                                </Header>
-                                <Body>
-                                    {tableList.map((item, index) => (
-                                        <Row key={item[objectProps.id]} item={item}>
-                                            {objectProps.columns.map(column => {
-                                                if (column.length == 2) {
-                                                    var value = column[0]
-                                                    if (typeof item[value] === "boolean") {
-                                                        return <Cell>{item[value] ? "✔️" : "-"}</Cell>
-                                                    }
-                                                    else return <Cell>{item[value]}</Cell>
+                                )}
+                                body={(item, index) => (
+                                    <Row key={item[objectProps.id]} item={item} className={index % 2 == 0 ? "even-row" : "odd-row"}>
+                                        {objectProps.columns.map(column => {
+                                            if (column.length == 2) {
+                                                var value = column[0]
+                                                if (typeof item[value] === "boolean") {
+                                                    return <Cell>{item[value] ? "✔️" : "-"}</Cell>
                                                 }
-                                                else {
-                                                    var objects = extraObjectData[column[2]]
-                                                    var value = column[0]
-                                                    return <Cell>{objects.find(object => object[value] == item[value])?.name ?? "-"}</Cell>
-                                                }
-                                            })}
-                                            <Cell>
-                                                {extraPerms ?
+                                                else return <Cell>{item[value]}</Cell>
+                                            }
+                                            else {
+                                                var objects = extraObjectData[column[2]]
+                                                var value = column[0]
+                                                return <Cell>{objects.find(object => object[value] == item[value])?.name ?? "-"}</Cell>
+                                            }
+                                        })}
+                                        <Cell>
+                                            {extraPerms ?
                                                 <><button className="btn p-0" onClick={() => {
-                                                        setDeletingId(item[objectProps.id]);
-                                                        handleShowDelete();
-                                                    } }>❌</button><button className="btn p-0" onClick={() => [
-                                                        startEditing(item[objectProps.id])
-                                                    ]}>✏️</button></>
-                                                    : <></>
-                                                }
-                                            </Cell>
-                                        </Row>
-                                    ))}
-                                </Body>
-                            </>
+                                                    setDeletingId(item[objectProps.id]);
+                                                    handleShowDelete();
+                                                }}>❌</button><button className="btn p-0" onClick={() => [
+                                                    startEditing(item[objectProps.id])
+                                                ]}>✏️</button></>
+                                                : <></>
+                                            }
+                                        </Cell>
+                                    </Row>
+                                )}
+
+                            />
+                            // <>
+                            //     <Header>
+                            //         <HeaderRow>
+                            //             {objectProps.columns.map(column => {
+                            //                 var value = column[1]
+                            //                 return <HeaderCell>{value}</HeaderCell>
+                            //             })}
+                            //             <HeaderCell>פעולות</HeaderCell>
+                            //         </HeaderRow>
+                            //     </Header>
+                            //     <Body>
+                            //         {tableList.map((item, index) => (
+                            //             <Row key={item[objectProps.id]} item={item}>
+                            //                 {objectProps.columns.map(column => {
+                            //                     if (column.length == 2) {
+                            //                         var value = column[0]
+                            //                         if (typeof item[value] === "boolean") {
+                            //                             return <Cell>{item[value] ? "✔️" : "-"}</Cell>
+                            //                         }
+                            //                         else return <Cell>{item[value]}</Cell>
+                            //                     }
+                            //                     else {
+                            //                         var objects = extraObjectData[column[2]]
+                            //                         var value = column[0]
+                            //                         return <Cell>{objects.find(object => object[value] == item[value])?.name ?? "-"}</Cell>
+                            //                     }
+                            //                 })}
+                            //                 <Cell>
+                            //                     {extraPerms ?
+                            //                     <><button className="btn p-0" onClick={() => {
+                            //                             setDeletingId(item[objectProps.id]);
+                            //                             handleShowDelete();
+                            //                         } }>❌</button><button className="btn p-0" onClick={() => [
+                            //                             startEditing(item[objectProps.id])
+                            //                         ]}>✏️</button></>
+                            //                         : <></>
+                            //                     }
+                            //                 </Cell>
+                            //             </Row>
+                            //         ))}
+                            //     </Body>
+                            // </>
                         )}
                     </Table>
                 </div>
-                {extraPerms ?
-                    <button className="btn btn-primary fs-6 m-2" onClick={() => {
-                        handleShow()
-                        resetAddInputs()
-                        setEditingId(null)
-                    }}>➕ להוסיף חדש</button>
-                    : <></>
-                }
+
             </div>
 
             <Modal show={show} onHide={handleClose}>
@@ -223,7 +290,7 @@ export function ObjectTable({ data, objectType, objectProps, width = "50", setOb
                             return (
                                 <div className="rtl mb-2">
                                     <label>{column[1]}</label>
-                                    <select
+                                    {/* <select
                                         className="form-control"
                                         name={column[0]}
                                         onChange={handleAddChange}
@@ -235,7 +302,19 @@ export function ObjectTable({ data, objectType, objectProps, width = "50", setOb
                                                 <option value={object[column[0]]}>{object.name}</option>
                                             )
                                         })}
-                                    </select>
+                                    </select> */}
+                                    <Select className=""
+                                        placeholder="בחר בית חולים..."
+                                        options={hospitalOptions}
+                                        noOptionsMessage={() => "לא נמצאו אפשרויות"}
+                                        value={hospitalOptions.find(option => option.value === addInputs.hospitalId) ?? null}
+                                        onChange={(option) =>
+                                            setAddInputs(prev => ({
+                                                ...prev,
+                                                hospitalId: option?.value ?? ""
+                                            }))
+                                        }
+                                    />
                                 </div>
                             )
                         }

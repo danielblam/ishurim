@@ -11,3 +11,17 @@
     border-color:rgb(233,233,233);
     border-width: 2px;
 }
+
+.approval-table {
+    height:1000px;
+    /* width: 1400px!important; */
+}
+
+.approval-table div {
+    direction: rtl;
+    
+}
+.approval-table [role="columnheader"] {
+    direction: rtl;
+    text-align: right;
+}

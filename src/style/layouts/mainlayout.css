@@ -57,3 +57,13 @@ hr {
     width:125%;
     color:hsl(209, 100%, 74%);
 }
+
+.carmel-logo {
+    background-color: white;
+    padding-inline: 10px;
+    padding-block: 4px;
+    padding-bottom:0px;
+    border-radius: 8px;
+    margin-right:10px;
+    margin-bottom:10px;
+}

@@ -1,0 +1,23 @@
+.object-table {
+    height:810px;
+    /* overflow-y: auto; */
+}
+.object-table div {
+    direction: rtl;
+    
+}
+.object-table [role="columnheader"] {
+    direction: rtl;
+    text-align: right;
+}
+/* 
+thead {
+  position: sticky;
+  top: 0;
+  z-index: 1;
+  background: white;
+} */
+
+.odd-row {
+    background-color: #eaf5fd!important;
+}

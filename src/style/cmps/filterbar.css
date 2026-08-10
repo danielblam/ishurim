@@ -1,16 +1,19 @@
 .filter-bar-input {
-    width: 25%;
+    width: 600px;
     direction:rtl;
-    margin:9px;
-    margin-bottom:0px;
+    /* margin:9px; */
+    /* margin-bottom:0px; */
 }
 
 .extra-filter {
     direction: rtl;
     display:flex;
-    width:40%;
 
-    > select {
-        width:50%;
+    > input {
+        width:200px;
     }
+    > .filter-bar-input {
+        width:300px;
+    }
+
 }

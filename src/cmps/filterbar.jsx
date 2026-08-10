@@ -17,12 +17,14 @@ export default function FilterBar({ text, setText, showExtraFilters = false, ext
 
     return (
         <>
-            <input value={text} onChange={(e) => setText(e.target.value)}
-                className="form-control filter-bar-input"
-                placeholder="חיפוש לפי תעודת זהות או מספר אשפוז..."
-            />
-            {showExtraFilters ?
-                <div className="extra-filter m-2">
+            <div className="extra-filter m-2">
+                <input value={text} onChange={(e) => setText(e.target.value)}
+                    className="form-control filter-bar-input ms-2"
+                    placeholder="חיפוש לפי תעודת זהות או מספר אשפוז..."
+                />
+                {showExtraFilters ?
+                
+                    <>
                     <input
                         className="form-control ms-2"
                         list="hospitals"
@@ -64,10 +66,12 @@ export default function FilterBar({ text, setText, showExtraFilters = false, ext
                             return <option value={opt.fullName} />
                         })}
                     </datalist>
+                    </>
 
-                </div>
-                : <></>
-            }
+
+                    : <></>
+                }
+            </div>
         </>
     )
 }

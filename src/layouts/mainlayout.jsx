@@ -18,9 +18,10 @@ export function MainLayout() {
             <div className="main-dashboard col-2 vh-100 text-white">
                 <nav className="main-dashboard-nav">
                     <h3 className="sidebar-header">מערכת אישורים</h3>
+                    <img src="/carmelLogo.png" className="carmel-logo"/>
                     <hr></hr>
                     <div><NavLink to="/dash/approvals?create=true">
-                        אישור חדש
+                        הפקת אישור חדש
                     </NavLink></div>
                     <div><NavLink to="/dash/approvals?create=false" className={({ isActive }) => isActive ? "current-page" : ""}>
                         רשימת אישורים

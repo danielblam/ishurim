@@ -18,6 +18,8 @@ import { objectService } from '../services/objectservice';
 import { AppContext } from "../AppContext"
 import { useSearchParams } from 'react-router-dom';
 import { ExportModal } from './exportmodal';
+import { Virtualized } from "@table-library/react-table-library/virtualized";
+import Select from 'react-select';
 
 export function ApprovalTable({ data, objectType, objectProps, width = "100", setObjectData, extraObjectData }) {
 
@@ -180,24 +182,52 @@ export function ApprovalTable({ data, objectType, objectProps, width = "100", se
     const [showExport, setShowExport] = useState(false)
     const handleExportClose = () => setShowExport(false)
 
+    const testOptions = extraObjectData.tests.map(object => ({
+        value: object.testId,
+        label: object.name
+    }))
+    const vehicleOptions = extraObjectData.vehicles.map(object => ({
+        value: object.vehicleId,
+        label: object.name
+    }))
+    const departmentOptions = extraObjectData.departments.map(object => ({
+        value: object.departmentId,
+        label: object.name
+    }))
+    const approverOptions = extraObjectData.approvers.filter(approver => approver.allowed).map(object => ({
+        value: object.approverId,
+        label: object.fullName
+    }))
+    const hospitalOptions = extraObjectData.hospitals.map(object => ({
+        value: object.hospitalId,
+        label: object.name,
+        isDisabled: extraObjectData.institutes.find(i => i.hospitalId == object.hospitalId) == undefined
+    })) // deprecate, maybe
+    const instituteOptions = extraObjectData.institutes.map(object => ({
+        value: object.instituteId,
+        label: object.name + (object.hospitalId == null ? "" : ` (${findObject("hospitals", "hospitalId", object.hospitalId).name})`)
+    }))
+
     return (
         <>
-            <div className="rtl">
+            <div className="rtl w-100">
                 <div className="button-row">
                     <button className="btn btn-primary fs-6 m-2" onClick={() => {
                         handleShow()
                         resetAddInputs()
                         setEditingId(null)
-                    }}>➕ להוסיף חדש</button>
+                    }}>➕ אישור חדש</button>
                     <button className="btn btn-light export-modal-button fs-6 m-2" onClick={() => {
                         setShowExport(true)
                     }}><img src="/excel.png" width="24" className="ms-1" /> ייצוא דוח אישורים</button>
                 </div>
-                <div className={`rtl-table w-${width}`}>
-                    <Table data={data} theme={theme} className="">
+                <div className={`rtl-table approval-table`}>
+                    <Table data={data} theme={theme} className="" layout={{ isDiv: true, fixedHeader: true }}>
                         {(tableList) => (
-                            <>
-                                <Header>
+                            <Virtualized
+                                tableList={tableList}
+                                rowHeight={38}
+                                header={() => (
                                     <HeaderRow>
                                         <HeaderCell>מספר שובר</HeaderCell>
                                         <HeaderCell>מספר אשפוז</HeaderCell>
@@ -212,47 +242,103 @@ export function ApprovalTable({ data, objectType, objectProps, width = "100", se
                                         <HeaderCell>תעודת זהות</HeaderCell>
                                         <HeaderCell>פעולות</HeaderCell>
                                     </HeaderRow>
-                                </Header>
-                                <Body>
-                                    {tableList.map((item, index) => (
-                                        <Row key={item.approvalId} item={item} onDoubleClick={() => {
-                                            //console.log(`clicked this row! ${item.approvalId}`)
-                                        }}>
-                                            <Cell>{item.approvalId}</Cell>
-                                            <Cell>{item.hospitalizationId}</Cell>
-                                            <Cell>{item.date?.split("-")?.reverse()?.join("/") ?? "-"}</Cell>
-                                            <Cell>{(() => {
-                                                var hospitalId = findObject("institutes", "instituteId", item.instituteId)?.hospitalId
-                                                var hospital = findObject("hospitals", "hospitalId", hospitalId)
-                                                return hospital?.name ?? "-"
-                                            })()}</Cell>
-                                            <Cell>{findObject("institutes", "instituteId", item.instituteId)?.name}</Cell>
-                                            <Cell>{findObject("tests", "testId", item.testId)?.name}</Cell>
-                                            {/* <Cell>{item.testCode ?? "-"}</Cell> */}
-                                            <Cell>{findObject("approvers", "approverId", item.approverId)?.fullName}</Cell>
-                                            <Cell>{item.clerk}</Cell>
-                                            <Cell>{`${item.firstName} ${item.lastName}`}</Cell>
-                                            <Cell>{item.idNumber}</Cell>
-                                            <Cell>
-                                                {extraPerms ?
-                                                    <><button className="btn p-0" onClick={() => {
-                                                        setDeletingId(item[objectProps.id]);
-                                                        handleShowDelete();
-                                                    }}>❌</button><button className="btn p-0" onClick={() => [
-                                                        startEditing(item[objectProps.id])
-                                                    ]}>✏️</button></>
-                                                    : <></>
-                                                }
-                                                {objectType != "approvals" ? <></> :
-                                                    <button className="btn p-0" onClick={() => {
-                                                        showPdf(item[objectProps.id])
-                                                    }}>📄</button>
-                                                }
-                                            </Cell>
-                                        </Row>
-                                    ))}
-                                </Body>
-                            </>
+                                )}
+                                body={(item, index) => (
+                                    <Row key={item.approvalId} item={item} onDoubleClick={() => {
+                                        //console.log(`clicked this row! ${item.approvalId}`)
+                                    }} className={index % 2 == 0 ? "even-row" : "odd-row"}>
+                                        <Cell>{item.approvalId}</Cell>
+                                        <Cell>{item.hospitalizationId}</Cell>
+                                        <Cell>{item.date?.split("-")?.reverse()?.join("/") ?? "-"}</Cell>
+                                        <Cell>{(() => {
+                                            var hospitalId = findObject("institutes", "instituteId", item.instituteId)?.hospitalId
+                                            var hospital = findObject("hospitals", "hospitalId", hospitalId)
+                                            return hospital?.name ?? "-"
+                                        })()}</Cell>
+                                        <Cell>{findObject("institutes", "instituteId", item.instituteId)?.name}</Cell>
+                                        <Cell>{findObject("tests", "testId", item.testId)?.name}</Cell>
+                                        {/* <Cell>{item.testCode ?? "-"}</Cell> */}
+                                        <Cell>{findObject("approvers", "approverId", item.approverId)?.fullName}</Cell>
+                                        <Cell>{item.clerk}</Cell>
+                                        <Cell>{`${item.firstName} ${item.lastName}`}</Cell>
+                                        <Cell>{item.idNumber}</Cell>
+                                        <Cell>
+                                            {extraPerms ?
+                                                <><button className="btn p-0" onClick={() => {
+                                                    setDeletingId(item[objectProps.id]);
+                                                    handleShowDelete();
+                                                }}>❌</button><button className="btn p-0" onClick={() => [
+                                                    startEditing(item[objectProps.id])
+                                                ]}>✏️</button></>
+                                                : <></>
+                                            }
+                                            {objectType != "approvals" ? <></> :
+                                                <button className="btn p-0" onClick={() => {
+                                                    showPdf(item[objectProps.id])
+                                                }}>📄</button>
+                                            }
+                                        </Cell>
+                                    </Row>
+                                )}
+
+                            />
+                            // <>
+                            //     <Header>
+                            //         <HeaderRow>
+                            //             <HeaderCell>מספר שובר</HeaderCell>
+                            //             <HeaderCell>מספר אשפוז</HeaderCell>
+                            //             <HeaderCell>תאריך</HeaderCell>
+                            //             <HeaderCell>בית חולים</HeaderCell>
+                            //             <HeaderCell>מכון</HeaderCell>
+                            //             <HeaderCell>סוג בדיקה</HeaderCell>
+                            //             {/* <HeaderCell>קוד בדיקה</HeaderCell> */}
+                            //             <HeaderCell>המאשר</HeaderCell>
+                            //             <HeaderCell>פקיד</HeaderCell>
+                            //             <HeaderCell>שם החולה</HeaderCell>
+                            //             <HeaderCell>תעודת זהות</HeaderCell>
+                            //             <HeaderCell>פעולות</HeaderCell>
+                            //         </HeaderRow>
+                            //     </Header>
+                            //     <Body>
+                            //         {tableList.map((item, index) => (
+                            //             <Row key={item.approvalId} item={item} onDoubleClick={() => {
+                            //                 //console.log(`clicked this row! ${item.approvalId}`)
+                            //             }}>
+                            //                 <Cell>{item.approvalId}</Cell>
+                            //                 <Cell>{item.hospitalizationId}</Cell>
+                            //                 <Cell>{item.date?.split("-")?.reverse()?.join("/") ?? "-"}</Cell>
+                            //                 <Cell>{(() => {
+                            //                     var hospitalId = findObject("institutes", "instituteId", item.instituteId)?.hospitalId
+                            //                     var hospital = findObject("hospitals", "hospitalId", hospitalId)
+                            //                     return hospital?.name ?? "-"
+                            //                 })()}</Cell>
+                            //                 <Cell>{findObject("institutes", "instituteId", item.instituteId)?.name}</Cell>
+                            //                 <Cell>{findObject("tests", "testId", item.testId)?.name}</Cell>
+                            //                 {/* <Cell>{item.testCode ?? "-"}</Cell> */}
+                            //                 <Cell>{findObject("approvers", "approverId", item.approverId)?.fullName}</Cell>
+                            //                 <Cell>{item.clerk}</Cell>
+                            //                 <Cell>{`${item.firstName} ${item.lastName}`}</Cell>
+                            //                 <Cell>{item.idNumber}</Cell>
+                            //                 <Cell>
+                            //                     {extraPerms ?
+                            //                         <><button className="btn p-0" onClick={() => {
+                            //                             setDeletingId(item[objectProps.id]);
+                            //                             handleShowDelete();
+                            //                         }}>❌</button><button className="btn p-0" onClick={() => [
+                            //                             startEditing(item[objectProps.id])
+                            //                         ]}>✏️</button></>
+                            //                         : <></>
+                            //                     }
+                            //                     {objectType != "approvals" ? <></> :
+                            //                         <button className="btn p-0" onClick={() => {
+                            //                             showPdf(item[objectProps.id])
+                            //                         }}>📄</button>
+                            //                     }
+                            //                 </Cell>
+                            //             </Row>
+                            //         ))}
+                            //     </Body>
+                            // </>
                         )}
                     </Table>
                 </div>
@@ -260,7 +346,7 @@ export function ApprovalTable({ data, objectType, objectProps, width = "100", se
 
             <Modal show={show} onHide={handleClose} dialogClassName='extra-medium'>
                 <Modal.Header closeButton className="rtl">
-                    <Modal.Title>{`הוספת ${objectProps.nameHebrew}`}</Modal.Title>
+                    <Modal.Title>{`הפקת ${objectProps.nameHebrew}`}</Modal.Title>
                 </Modal.Header>
                 <Modal.Body>
                     {/* approvalId, hospitalizationId */}
@@ -291,7 +377,7 @@ export function ApprovalTable({ data, objectType, objectProps, width = "100", se
                         </div>
                         <div className="rtl mb-2 col-6">
                             <label>סוג בדיקה</label>
-                            <select className="form-control"
+                            {/* <select className="form-control"
                                 name="testId" onChange={handleAddChange}
                                 value={addInputs.testId}
                             >
@@ -301,7 +387,19 @@ export function ApprovalTable({ data, objectType, objectProps, width = "100", se
                                         <option value={object.testId}>{object.name}</option>
                                     )
                                 })}
-                            </select>
+                            </select> */}
+                            <Select className=""
+                                placeholder="בחר סוג בדיקה..."
+                                options={testOptions}
+                                noOptionsMessage={() => "לא נמצאו אפשרויות"}
+                                value={testOptions.find(option => option.value === addInputs.testId) ?? null}
+                                onChange={(option) =>
+                                    setAddInputs(prev => ({
+                                        ...prev,
+                                        testId: option?.value ?? ""
+                                    }))
+                                }
+                            />
                         </div>
                     </div>
                     {/* idnumber firstname lastname */}
@@ -332,21 +430,22 @@ export function ApprovalTable({ data, objectType, objectProps, width = "100", se
                     <div className="row">
                         <div className="rtl mb-2 col-6">
                             <label>כלי תחבורה</label>
-                            <select className="form-control"
-                                name="vehicleId" onChange={handleAddChange}
-                                value={addInputs.vehicleId}
-                            >
-                                <option value=""></option>
-                                {extraObjectData.vehicles.map(object => {
-                                    return (
-                                        <option value={object.vehicleId}>{object.name}</option>
-                                    )
-                                })}
-                            </select>
+                            <Select className=""
+                                placeholder="בחר כלי תחבורה..."
+                                options={vehicleOptions}
+                                noOptionsMessage={() => "לא נמצאו אפשרויות"}
+                                value={vehicleOptions.find(option => option.value === addInputs.vehicleId) ?? null}
+                                onChange={(option) =>
+                                    setAddInputs(prev => ({
+                                        ...prev,
+                                        vehicleId: option?.value ?? ""
+                                    }))
+                                }
+                            />
                         </div>
                         <div className="rtl mb-2 col-6">
                             <label>מחלקה שולחת</label>
-                            <select className="form-control"
+                            {/* <select className="form-control"
                                 name="departmentId" onChange={handleAddChange}
                                 value={addInputs.departmentId}
                             >
@@ -356,7 +455,19 @@ export function ApprovalTable({ data, objectType, objectProps, width = "100", se
                                         <option value={object.departmentId}>{object.name}</option>
                                     )
                                 })}
-                            </select>
+                            </select> */}
+                            <Select className=""
+                                placeholder="בחר מחלקה..."
+                                options={departmentOptions}
+                                noOptionsMessage={() => "לא נמצאו אפשרויות"}
+                                value={departmentOptions.find(option => option.value === addInputs.departmentId) ?? null}
+                                onChange={(option) =>
+                                    setAddInputs(prev => ({
+                                        ...prev,
+                                        departmentId: option?.value ?? ""
+                                    }))
+                                }
+                            />
                         </div>
                     </div>
                     {/* approver, clerk */}
@@ -370,22 +481,23 @@ export function ApprovalTable({ data, objectType, objectProps, width = "100", se
                         </div>
                         <div className="rtl mb-2 col-6">
                             <label>המאשר</label>
-                            <select className="form-control"
-                                name="approverId" onChange={handleAddChange}
-                                value={addInputs.approverId}
-                            >
-                                <option value=""></option>
-                                {extraObjectData.approvers.filter(approver => approver.allowed).map(object => {
-                                    return (
-                                        <option value={object.approverId}>{object.fullName}</option>
-                                    )
-                                })}
-                            </select>
+                            <Select className=""
+                                placeholder="בחר מאשר..."
+                                options={approverOptions}
+                                noOptionsMessage={() => "לא נמצאו אפשרויות"}
+                                value={approverOptions.find(option => option.value === addInputs.approverId) ?? null}
+                                onChange={(option) =>
+                                    setAddInputs(prev => ({
+                                        ...prev,
+                                        approverId: option?.value ?? ""
+                                    }))
+                                }
+                            />
                         </div>
                     </div>
                     {/* hospital, institute */}
                     <div className="row">
-                        <div className="rtl mb-2 col-6">
+                        {/* <div className="rtl mb-2 col-6">
                             <label>מכון</label>
                             <select className="form-control"
                                 name="instituteId" onChange={handleAddChange}
@@ -401,17 +513,33 @@ export function ApprovalTable({ data, objectType, objectProps, width = "100", se
                         </div>
                         <div className="rtl mb-2 col-6">
                             <label>בית חולים</label>
-                            <select className="form-control"
-                                name="hospitalId" onChange={handleAddChange}
-                                value={addInputs.hospitalId}
-                            >
-                                <option value="-"></option>
-                                {extraObjectData.hospitals.map(object => {
-                                    return (
-                                        <option value={object.hospitalId}>{object.name}</option>
-                                    )
-                                })}
-                            </select>
+                            <Select className=""
+                                placeholder="בחר בית חולים..."
+                                options={hospitalOptions}
+                                noOptionsMessage={() => "לא נמצאו אפשרויות"}
+                                value={hospitalOptions.find(option => option.value === addInputs.hospitalId) ?? null}
+                                onChange={(option) =>
+                                    setAddInputs(prev => ({
+                                        ...prev,
+                                        hospitalId: option?.value ?? ""
+                                    }))
+                                }
+                            />
+                        </div> */}
+                        <div className="rtl mb-2 col-12">
+                            <label>מכון / בית חולים</label>
+                            <Select className=""
+                                placeholder="בחר מכון ובית חולים..."
+                                options={instituteOptions}
+                                noOptionsMessage={() => "לא נמצאו אפשרויות"}
+                                value={instituteOptions.find(option => option.value === addInputs.instituteId) ?? null}
+                                onChange={(option) =>
+                                    setAddInputs(prev => ({
+                                        ...prev,
+                                        instituteId: option?.value ?? ""
+                                    }))
+                                }
+                            />
                         </div>
                     </div>
                     <div className="rtl">
@@ -427,7 +555,7 @@ export function ApprovalTable({ data, objectType, objectProps, width = "100", se
                 <Modal.Footer>
                     <div className="text-danger px-2 rtl">{failText}</div>
                     <Button variant="primary" onClick={handleAddNew}>
-                        הוספה
+                        הפקה
                     </Button>
                 </Modal.Footer>
             </Modal>
