@@ -20,6 +20,7 @@ import { useSearchParams } from 'react-router-dom';
 import { ExportModal } from './exportmodal';
 import { Virtualized } from "@table-library/react-table-library/virtualized";
 import Select from 'react-select';
+import { checkSession, redirectToLogin } from '../services/utils';
 
 export function ApprovalTable({ data, objectType, objectProps, width = "100", setObjectData, extraObjectData }) {
 
@@ -215,12 +216,14 @@ export function ApprovalTable({ data, objectType, objectProps, width = "100", se
         <>
             <div className="rtl w-100">
                 <div className="button-row">
-                    <button className="btn btn-primary fs-6 m-2" onClick={() => {
+                    <button className="btn btn-primary fs-6 m-2" onClick={async () => {
+                        if (!await checkSession(token)) redirectToLogin()
                         handleShow()
                         resetAddInputs()
                         setEditingId(null)
                     }}>➕ אישור חדש</button>
-                    <button className="btn btn-light export-modal-button fs-6 m-2" onClick={() => {
+                    <button className="btn btn-light export-modal-button fs-6 m-2" onClick={async () => {
+                        if (!await checkSession(token)) redirectToLogin()
                         setShowExport(true)
                     }}><img src="/excel.png" width="24" className="ms-1" /> ייצוא דוח אישורים</button>
                 </div>
@@ -267,19 +270,20 @@ export function ApprovalTable({ data, objectType, objectProps, width = "100", se
                                         <Cell>{item.idNumber}</Cell>
                                         <Cell>
                                             {extraPerms ?
-                                                <><button className="btn p-0" onClick={() => {
+                                                <><button className="btn p-0" onClick={async () => {
+                                                    if (!await checkSession(token)) redirectToLogin()
                                                     setDeletingId(item[objectProps.id]);
                                                     handleShowDelete();
-                                                }}>❌</button><button className="btn p-0" onClick={() => [
+                                                }}>❌</button><button className="btn p-0" onClick={async () => {
+                                                    if (!await checkSession(token)) redirectToLogin()
                                                     startEditing(item[objectProps.id])
-                                                ]}>✏️</button></>
+                                                }}>✏️</button></>
                                                 : <></>
                                             }
-                                            {objectType != "approvals" ? <></> :
-                                                <button className="btn p-0" onClick={() => {
-                                                    showPdf(item[objectProps.id])
-                                                }}>📄</button>
-                                            }
+                                            <button className="btn p-0" onClick={async () => {
+                                                if (!await checkSession(token)) redirectToLogin()
+                                                showPdf(item[objectProps.id])
+                                            }}>📄</button>
                                         </Cell>
                                     </Row>
                                 )}

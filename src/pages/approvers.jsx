@@ -33,6 +33,7 @@ export function ApproversPage() {
     var navigate = useNavigate();
 
     useEffect(() => {
+        localStorage.setItem("lastVisited", objectType)
         fetchData()
     }, [])
 

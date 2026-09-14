@@ -33,6 +33,7 @@ export function HospitalsPage() {
     var navigate = useNavigate();
 
     useEffect(() => {
+        localStorage.setItem("lastVisited", objectType)
         fetchData()
     }, [])
 

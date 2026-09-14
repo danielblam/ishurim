@@ -21,6 +21,7 @@ export function VehiclesPage() {
     var navigate = useNavigate();
 
     useEffect(() => {
+        localStorage.setItem("lastVisited", objectType)
         fetchData()
     }, [])
 

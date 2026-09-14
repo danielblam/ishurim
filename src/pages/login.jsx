@@ -40,7 +40,9 @@ export function LoginPage() {
         setToken(result.token)
         setUsername(result.name)
         setRole(result.role)
-        navigate("/dash", { state: { refresh: true } })
+
+        var lastVisited = localStorage.getItem("lastVisited") ?? ""
+        navigate(`/dash/${lastVisited}`, { state: { refresh: true } })
     }
 
     const logIn = async () => {

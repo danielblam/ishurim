@@ -1,6 +1,6 @@
 // a generalized service for hospitals, institutes, tests, vehicles, possibly approvers and approvals too
 
-import { url } from "./utils"
+import { redirectToLogin, url } from "./utils"
 
 function headers(token) {
     return {
@@ -15,7 +15,10 @@ async function getObjectList(type, token) {
         headers: headers(token)
     })
     const response = await fetch(request)
-    if (!response.ok) return response.status
+    if (!response.ok) {
+        redirectToLogin()
+        return response.status
+    }
     return await response.json()
 }
 

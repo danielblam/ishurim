@@ -19,6 +19,7 @@ import Modal from 'react-bootstrap/Modal';
 import { objectService } from '../services/objectservice';
 import { AppContext } from "../AppContext"
 import Select from 'react-select';
+import { checkSession, redirectToLogin } from '../services/utils';
 
 export function ObjectTable({ data, objectType, objectProps, width = "50", setObjectData, extraObjectData }) {
     console.log(data)
@@ -125,6 +126,9 @@ export function ObjectTable({ data, objectType, objectProps, width = "50", setOb
         if (status < 400) {
             setObjectData((prevData) => prevData.map(item => item[objectProps.id] == objectId ? { ...item, active: setActive } : item))
         }
+        else if(status == 401) {
+            redirectToLogin()
+        }
     }
 
     const showPdf = async (approvalId) => {
@@ -161,7 +165,8 @@ export function ObjectTable({ data, objectType, objectProps, width = "50", setOb
                         />
                     </div>
                     {extraPerms ?
-                        <button className="btn btn-primary fs-6 m-2 me-0" onClick={() => {
+                        <button className="btn btn-primary fs-6 m-2 me-0" onClick={async () => {
+                            if(!await checkSession(token)) redirectToLogin()
                             handleShow()
                             resetAddInputs()
                             setEditingId(null)
@@ -214,9 +219,10 @@ export function ObjectTable({ data, objectType, objectProps, width = "50", setOb
                                                         }}>{item.active ? "❌" : "↩️"}</button>
                                                         : <></>
                                                     }
-                                                    <button className="btn p-0" onClick={() => [
+                                                    <button className="btn p-0" onClick={async () => {
+                                                        if(!await checkSession(token)) redirectToLogin()
                                                         startEditing(item[objectProps.id])
-                                                    ]}>✏️</button>
+                                                    }}>✏️</button>
                                                 </>
                                                 : <></>
                                             }

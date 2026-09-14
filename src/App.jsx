@@ -9,7 +9,6 @@ import { HospitalsPage } from './pages/hospitals';
 import { InstitutesPage } from './pages/institutes';
 import { TestsPage } from './pages/tests';
 import { VehiclesPage } from './pages/vehicles';
-import { NewApproval } from './pages/newapproval';
 import { AppProvider } from './AppContext';
 import { DepartmentsPage } from './pages/departments';
 import { FailedWindowsLogin } from './pages/failedwindowslogin';
@@ -26,7 +25,6 @@ export default function App() {
 
           <Route element={<MainLayout />}>
             <Route path="/dash" element={<></>} />
-            <Route path="/dash/newapproval" element={<NewApproval />} />
             <Route path="/dash/approvals" element={<ApprovalsPage />} />
             <Route path="/dash/approvers" element={<ApproversPage />} />
             <Route path="/dash/hospitals" element={<HospitalsPage />} />

@@ -55,6 +55,7 @@ export function ApprovalsPage() {
     var [filterText, setFilterText] = useState("")
 
     useEffect(() => {
+        localStorage.setItem("lastVisited", objectType)
         fetchData()
     }, [])
 
