@@ -114,6 +114,9 @@ export function ApprovalTable({ data, objectType, objectProps, width = "100", se
         })
         setFailText("")
     }
+    useEffect(() => {
+        resetAddInputs()
+    }, [])
 
     const handleAddNew = async () => {
 
@@ -182,15 +185,15 @@ export function ApprovalTable({ data, objectType, objectProps, width = "100", se
     const [showExport, setShowExport] = useState(false)
     const handleExportClose = () => setShowExport(false)
 
-    const testOptions = extraObjectData.tests.map(object => ({
+    const testOptions = extraObjectData.tests.filter(object => object.active).map(object => ({
         value: object.testId,
         label: object.name
     }))
-    const vehicleOptions = extraObjectData.vehicles.map(object => ({
+    const vehicleOptions = extraObjectData.vehicles.filter(object => object.active).map(object => ({
         value: object.vehicleId,
         label: object.name
     }))
-    const departmentOptions = extraObjectData.departments.map(object => ({
+    const departmentOptions = extraObjectData.departments.filter(object => object.active).map(object => ({
         value: object.departmentId,
         label: object.name
     }))
@@ -198,12 +201,12 @@ export function ApprovalTable({ data, objectType, objectProps, width = "100", se
         value: object.approverId,
         label: object.fullName
     }))
-    const hospitalOptions = extraObjectData.hospitals.map(object => ({
+    const hospitalOptions = extraObjectData.hospitals.filter(object => object.active).map(object => ({
         value: object.hospitalId,
         label: object.name,
         isDisabled: extraObjectData.institutes.find(i => i.hospitalId == object.hospitalId) == undefined
     })) // deprecate, maybe
-    const instituteOptions = extraObjectData.institutes.map(object => ({
+    const instituteOptions = extraObjectData.institutes.filter(object => object.active).map(object => ({
         value: object.instituteId,
         label: object.name + (object.hospitalId == null ? "" : ` (${findObject("hospitals", "hospitalId", object.hospitalId).name})`)
     }))

@@ -51,6 +51,15 @@ async function deleteObject(type, token, objectId) {
     return response.status
 }
 
+async function setObjectActivity(type, token, objectId, active) {
+    const request = new Request(`${url}/${type}/active/${objectId}?active=${active}`, {
+        method: "GET",
+        headers: headers(token)
+    })
+    const response = await fetch(request)
+    return response.status
+}
+
 async function generatePdf(token, approvalId) {
     const request = new Request(`${url}/approvals/pdf/${approvalId}`, {
         method: "GET",
@@ -84,6 +93,7 @@ export const objectService = {
     addObject,
     editObject,
     deleteObject,
+    setObjectActivity,
     generatePdf,
     generateXlsx
 }

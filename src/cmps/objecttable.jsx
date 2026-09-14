@@ -115,6 +115,18 @@ export function ObjectTable({ data, objectType, objectProps, width = "50", setOb
         handleCloseDelete()
     }
 
+    const handleActivityToggle = async (object) => {
+        let objectId = object[objectProps.id]
+        let setActive = !object.active
+        console.log(object, objectId, setActive)
+
+        var status = await objectService.setObjectActivity(objectType, token, objectId, setActive)
+        console.log(status)
+        if (status < 400) {
+            setObjectData((prevData) => prevData.map(item => item[objectProps.id] == objectId ? { ...item, active: setActive } : item))
+        }
+    }
+
     const showPdf = async (approvalId) => {
         const blob = await objectService.generatePdf(token, approvalId)
         const url = URL.createObjectURL(blob);
@@ -178,10 +190,12 @@ export function ObjectTable({ data, objectType, objectProps, width = "50", setOb
                                         {objectProps.columns.map(column => {
                                             if (column.length == 2) {
                                                 var value = column[0]
+                                                console.log(item.active)
                                                 if (typeof item[value] === "boolean") {
                                                     return <Cell>{item[value] ? "✔️" : "-"}</Cell>
                                                 }
-                                                else return <Cell>{item[value]}</Cell>
+
+                                                else return <Cell>{item[value]} {item.active || objectType == "approvers" ? "" : "(לא פעיל)"}</Cell>
                                             }
                                             else {
                                                 var objects = extraObjectData[column[2]]
@@ -191,12 +205,19 @@ export function ObjectTable({ data, objectType, objectProps, width = "50", setOb
                                         })}
                                         <Cell>
                                             {extraPerms ?
-                                                <><button className="btn p-0" onClick={() => {
-                                                    setDeletingId(item[objectProps.id]);
-                                                    handleShowDelete();
-                                                }}>❌</button><button className="btn p-0" onClick={() => [
-                                                    startEditing(item[objectProps.id])
-                                                ]}>✏️</button></>
+                                                <>
+                                                    {objectType != "approvers" ?
+                                                        <button className="btn p-0" onClick={() => {
+                                                            // setDeletingId(item[objectProps.id]);
+                                                            // handleShowDelete();
+                                                            handleActivityToggle(item)
+                                                        }}>{item.active ? "❌" : "↩️"}</button>
+                                                        : <></>
+                                                    }
+                                                    <button className="btn p-0" onClick={() => [
+                                                        startEditing(item[objectProps.id])
+                                                    ]}>✏️</button>
+                                                </>
                                                 : <></>
                                             }
                                         </Cell>
